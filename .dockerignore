@@ -1,4 +1,33 @@
+# Bağımlılıklar (Docker içinde yeniden yüklenir)
 node_modules/
+
+# Build output (Docker içinde yeniden build edilir)
 dist/
+
+# Angular cache (CRITICAL - yüzlerce MB olabilir)
+.angular/
+
+# Secrets
 .env
+.env.*
+
+# Test dosyaları
+*.spec.ts
+karma.conf.js
+coverage/
+
+# Git
+.git/
+.gitignore
+
+# CI/CD & Docker config
+.github/
+docker-compose*.yml
+Dockerfile
+vercel.json
+
+# IDE
+.vscode/
+
+# Docs
 *.md
