@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    extra_hosts:
+      - "backend:host-gateway"
+    restart: unless-stopped

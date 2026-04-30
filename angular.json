@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "e-commerce-frontend": {
+    "vendora-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/e-commerce-frontend",
+            "outputPath": "dist/vendora-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -66,10 +66,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "e-commerce-frontend:build:production"
+              "buildTarget": "vendora-frontend:build:production"
             },
             "development": {
-              "buildTarget": "e-commerce-frontend:build:development"
+              "buildTarget": "vendora-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
