@@ -1,0 +1,57 @@
+<div class="auth-wrapper">
+
+  <!-- ── Left Brand Panel ── -->
+  <div class="auth-brand">
+    <div class="auth-brand-content">
+
+      <div class="auth-brand-logo">
+        <div class="auth-brand-icon">🛒</div>
+        <span class="auth-brand-name">E-Commerce Platform</span>
+      </div>
+
+      <h1>Verify your<br><span>email address.</span></h1>
+      <p>Please wait a moment while we verify your email to secure your account.</p>
+
+      <div class="auth-feature-pills">
+        <div class="auth-pill">
+          <span class="auth-pill-icon">✅</span>
+          <span>Unlock all platform features</span>
+        </div>
+        <div class="auth-pill">
+          <span class="auth-pill-icon">🛡️</span>
+          <span>Enhanced account security</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Right Form Panel ── -->
+  <div class="auth-form-panel">
+
+    <div class="auth-card-header">
+      <h2>Email Verification ✉️</h2>
+      <p>We are checking your verification link.</p>
+    </div>
+
+    @if (isVerifying) {
+      <div style="text-align: center; color: var(--text-secondary); margin: 32px 0;">
+        <span class="spinner" style="width: 24px; height: 24px; border-width: 3px; border-top-color: var(--primary);"></span>
+        <p style="margin-top: 16px;">Verifying your email, please wait...</p>
+      </div>
+    } @else {
+      @if (message) {
+        <div class="success-banner">{{ message }}</div>
+      }
+
+      @if (errorMessage) {
+        <div class="error-banner">{{ errorMessage }}</div>
+      }
+
+      <div style="text-align: center; margin-top: 24px;">
+        <button routerLink="/login" class="login-btn">Go to Sign In →</button>
+      </div>
+    }
+
+  </div>
+</div>

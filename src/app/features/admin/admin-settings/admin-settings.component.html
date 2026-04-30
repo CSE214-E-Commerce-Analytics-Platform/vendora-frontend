@@ -1,0 +1,96 @@
+<div class="settings-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>System Settings</h2>
+      <p class="header-sub">Configure platform-wide preferences and integrations.</p>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <!-- General Settings -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="icon">⚙️</i>
+        <h3>General Preferences</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Platform Name</label>
+          <input type="text" [(ngModel)]="settings.platformName" placeholder="Enter platform name" />
+        </div>
+        <div class="form-group">
+          <label>Admin Contact Email</label>
+          <input type="email" [(ngModel)]="settings.contactEmail" placeholder="admin@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Primary Currency</label>
+          <select [(ngModel)]="settings.currency">
+            <option value="TRY">Turkish Lira (₺)</option>
+            <option value="USD">US Dollar ($)</option>
+            <option value="EUR">Euro (€)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="icon">🎨</i>
+        <h3>Appearance</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Default Theme</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="theme" value="light" [(ngModel)]="settings.defaultTheme">
+              <span class="radio-custom"></span> Light Mode
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="theme" value="dark" [(ngModel)]="settings.defaultTheme">
+              <span class="radio-custom"></span> Dark Mode
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="icon">🛡️</i>
+        <h3>System Status</h3>
+      </div>
+      <div class="card-body">
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.enableNotifications">
+            <span class="slider"></span>
+          </label>
+          <div class="toggle-info">
+            <strong>System Notifications</strong>
+            <p>Send email alerts for critical system events.</p>
+          </div>
+        </div>
+        <div class="toggle-group">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="settings.maintenanceMode">
+            <span class="slider warning"></span>
+          </label>
+          <div class="toggle-info">
+            <strong>Maintenance Mode</strong>
+            <p>Temporarily disable access for non-admin users.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn-save" (click)="saveSettings()" [disabled]="isSaving">
+      <span *ngIf="!isSaving"><i class="icon">💾</i> Save Changes</span>
+      <span *ngIf="isSaving"><i class="spinner-inline"></i> Saving...</span>
+    </button>
+  </div>
+</div>

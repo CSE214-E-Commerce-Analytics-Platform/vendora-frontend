@@ -1,0 +1,15 @@
+<nav class="navbar">
+    <div class="nav-brand">
+        <span class="brand-icon">🛒</span>
+        <span class="brand-text">E-Commerce Analytics Platform</span>
+    </div>
+
+    <div class="nav-links">
+        <a routerLink="/products" routerLinkActive="active">Products</a>
+    </div>
+
+    <div class="nav-user">
+        <span class="user-role">{{ userRole }}</span>
+        <button class="logout-btn" (click)="onLogout()">Logout</button>
+    </div>
+</nav>

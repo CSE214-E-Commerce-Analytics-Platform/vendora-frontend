@@ -1,0 +1,59 @@
+<div class="review-widget">
+
+  <!-- Write Review Form -->
+  <div class="write-review-card" *ngIf="allowWrite && !hasSubmitted">
+    <h3>Write a Review</h3>
+    
+    <div class="rating-selector">
+      <span class="star" 
+            *ngFor="let star of [1,2,3,4,5]" 
+            (click)="setRating(star)"
+            [class.filled]="star <= newReview.starRating">
+        ★
+      </span>
+    </div>
+
+    <textarea 
+      [(ngModel)]="newReview.commentText" 
+      placeholder="What did you think about this product?"
+      rows="4"
+    ></textarea>
+
+    <button class="submit-btn" 
+            (click)="submitReview()" 
+            [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Submitting...' : 'Submit Review' }}
+    </button>
+  </div>
+
+  <!-- Review List -->
+  <div class="reviews-list">
+    <h3 *ngIf="!allowWrite">Customer Reviews</h3>
+    
+    <div class="loader" *ngIf="isLoading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && reviews.length === 0">
+      <p>No reviews yet. Be the first to review this product!</p>
+    </div>
+
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-header">
+        <div class="stars">
+          <span class="star filled" *ngFor="let s of [].constructor(review.starRating)">★</span>
+          <span class="star empty" *ngFor="let s of [].constructor(5 - review.starRating)">★</span>
+        </div>
+        <span class="verified-badge">✓ Verified Purchase</span>
+      </div>
+      <p class="review-text">{{ review.commentText }}</p>
+      <div class="review-meta">
+        <span class="date">{{ review.createdAt | date:'mediumDate' }}</span>
+        <span class="sentiment" *ngIf="review.sentiment" [ngClass]="review.sentiment.toLowerCase()">
+          {{ review.sentiment }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>

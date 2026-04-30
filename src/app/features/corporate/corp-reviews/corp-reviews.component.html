@@ -1,0 +1,63 @@
+<div class="reviews-container">
+  <div class="reviews-header">
+    <div class="header-content">
+      <h2>Store Reviews</h2>
+      <p class="header-sub">View feedback and ratings from customers who purchased your products.</p>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading customer reviews...</p>
+  </div>
+
+  <div class="reviews-grid" *ngIf="!isLoading && reviews.length > 0">
+    <div class="review-card" *ngFor="let review of reviews">
+      
+      <div class="review-header">
+        <div class="product-info">
+          <span class="product-label">Product</span>
+          <h4 class="product-name">{{ review.productName }}</h4>
+        </div>
+        <div class="review-date">{{ review.createdAt | date:'mediumDate' }}</div>
+      </div>
+      
+      <div class="rating-display">
+        <div class="stars">
+          <span class="star" *ngFor="let star of getStarsArray(5)" [class.filled]="star <= review.starRating">★</span>
+        </div>
+        <span class="rating-text">{{ review.starRating }}/5</span>
+      </div>
+
+      <div class="review-comment" *ngIf="review.commentText">
+        <p>"{{ review.commentText }}"</p>
+      </div>
+      
+      <div class="review-footer" *ngIf="review.sentiment">
+        <span class="sentiment-badge" [ngClass]="review.sentiment.toLowerCase()">
+          Sentiment: {{ review.sentiment }}
+        </span>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+  <div class="empty-state" *ngIf="!isLoading && reviews.length === 0">
+    <div class="empty-icon">⭐</div>
+    <h3 *ngIf="!selectedStoreId">No store selected</h3>
+    <h3 *ngIf="selectedStoreId">No reviews yet</h3>
+    <p *ngIf="selectedStoreId">When customers review your products, their feedback will appear here.</p>
+  </div>
+</div>

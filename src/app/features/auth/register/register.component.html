@@ -1,0 +1,147 @@
+<div class="auth-wrapper">
+
+  <!-- ── Left Brand Panel ── -->
+  <div class="auth-brand">
+    <div class="auth-brand-content">
+
+      <div class="auth-brand-logo">
+        <div class="auth-brand-icon">🛒</div>
+        <span class="auth-brand-name">E-Commerce Platform</span>
+      </div>
+
+      <h1>Join thousands of<br><span>sellers & shoppers.</span></h1>
+      <p>Create your free account and start exploring products, managing stores, or tracking orders today.</p>
+
+      <div class="auth-feature-pills">
+        <div class="auth-pill">
+          <span class="auth-pill-icon">🚀</span>
+          <span>Get started in under 2 minutes</span>
+        </div>
+        <div class="auth-pill">
+          <span class="auth-pill-icon">🔐</span>
+          <span>Secure & encrypted authentication</span>
+        </div>
+        <div class="auth-pill">
+          <span class="auth-pill-icon">🏢</span>
+          <span>Upgrade to corporate seller anytime</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Right Form Panel ── -->
+  <div class="auth-form-panel">
+
+    <div class="auth-card-header">
+      <h2>Create Account ✨</h2>
+      <p>Fill in your details to get started for free.</p>
+    </div>
+
+    @if (successMessage) {
+      <div class="success-banner">{{ successMessage }}</div>
+      <div style="text-align: center; margin-top: 16px;">
+        <button routerLink="/login" class="register-btn" style="width: auto; padding: 12px 28px;">
+          Go to Sign In →
+        </button>
+      </div>
+    } @else {
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+        <div class="form-field">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" formControlName="email" placeholder="user@example.com"
+            [class.error-border]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+          @if (registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['required']) {
+            <span class="error-text">Email is required.</span>
+          } @else if (registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['email']) {
+            <span class="error-text">Please enter a valid email address.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="password">Password</label>
+          <div class="password-wrapper">
+            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              placeholder="Min 6 characters"
+              [class.error-border]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+            <span class="eye-icon" (mouseenter)="showPassword = true" (mouseleave)="showPassword = false">
+              @if (showPassword) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Hide</title><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Show</title><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              }
+            </span>
+          </div>
+          @if (registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']) {
+            <span class="error-text">Password must be at least 6 characters.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="password-wrapper">
+            <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword" placeholder="Re-enter your password"
+              [class.error-border]="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid">
+            <span class="eye-icon" (mouseenter)="showConfirmPassword = true" (mouseleave)="showConfirmPassword = false">
+              @if (showConfirmPassword) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Hide</title><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Show</title><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              }
+            </span>
+          </div>
+          @if (registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.errors?.['required']) {
+            <span class="error-text">Please confirm your password.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="age">Age (Optional)</label>
+          <input id="age" type="number" formControlName="age" placeholder="Your age (1-150)"
+            [class.error-border]="registerForm.get('age')?.touched && registerForm.get('age')?.invalid">
+          @if (registerForm.get('age')?.touched && registerForm.get('age')?.errors?.['min']) {
+            <span class="error-text">Age must be at least 1.</span>
+          } @else if (registerForm.get('age')?.touched && registerForm.get('age')?.errors?.['max']) {
+            <span class="error-text">Age must be at most 150.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="city">City (Optional)</label>
+          <input id="city" type="text" formControlName="city" placeholder="E.g. New York">
+        </div>
+
+        <div class="form-field">
+          <label for="state">State (Optional)</label>
+          <input id="state" type="text" formControlName="state" placeholder="E.g. NY">
+        </div>
+
+        <div class="form-field">
+          <label for="country">Country (Optional)</label>
+          <input id="country" type="text" formControlName="country" placeholder="E.g. USA">
+        </div>
+
+        @if (errorMessage) {
+          <div class="error-banner">{{ errorMessage }}</div>
+        }
+
+        <button type="submit" [disabled]="registerForm.invalid || isLoading" class="register-btn" [class.btn-loading]="isLoading">
+          @if (isLoading) {
+            <span class="spinner"></span> Creating account...
+          } @else {
+            Create Account →
+          }
+        </button>
+
+      </form>
+
+      <div class="register-footer">
+        <p>Already have an account? <a routerLink="/login" class="link">Sign In</a></p>
+        <small>© 2026 E-Commerce AI Management System</small>
+      </div>
+    }
+
+  </div>
+</div>

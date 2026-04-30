@@ -1,0 +1,93 @@
+<div class="reviews-container">
+  <div class="reviews-header">
+    <h2>My Reviews</h2>
+    <p class="header-sub">Manage the reviews you've written for products you've purchased.</p>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your reviews...</p>
+  </div>
+
+  <div class="reviews-list" *ngIf="!isLoading && reviews.length > 0">
+    <div class="review-card" *ngFor="let review of reviews" [class.editing]="editingReviewId === review.id">
+
+      <!-- View Mode -->
+      <ng-container *ngIf="editingReviewId !== review.id">
+        <div class="review-top">
+          <div class="review-product-info" *ngIf="productsMap[review.productId] as product">
+            <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-thumb" />
+            <span class="product-name">{{ product.name }}</span>
+          </div>
+          <div class="review-product-info" *ngIf="!productsMap[review.productId]">
+             <span class="product-name">Product #{{ review.productId }}</span>
+          </div>
+          <span class="sentiment-badge" [ngClass]="getSentimentClass(review.sentiment)">
+            {{ review.sentiment }}
+          </span>
+        </div>
+
+        <div class="star-display">
+          <span class="star" *ngFor="let filled of getStars(review.starRating)" [class.filled]="filled">★</span>
+        </div>
+
+        <p class="comment-text" *ngIf="review.commentText">{{ review.commentText }}</p>
+        <p class="comment-text muted" *ngIf="!review.commentText">No comment provided.</p>
+
+        <div class="review-actions">
+          <button class="action-btn edit-btn" (click)="startEdit(review)">Edit</button>
+          <button class="action-btn delete-btn"
+                  (click)="deleteReview(review.id!)"
+                  [disabled]="deletingId === review.id">
+            {{ deletingId === review.id ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- Edit Mode -->
+      <ng-container *ngIf="editingReviewId === review.id">
+        <p class="edit-label">Editing review for Product #{{ review.productId }}</p>
+
+        <div class="star-input">
+          <span class="star-btn" *ngFor="let s of [1,2,3,4,5]"
+                (click)="setEditStar(s)"
+                [class.active]="editForm.starRating >= s">★</span>
+          <span class="star-hint">{{ editForm.starRating }}/5</span>
+        </div>
+
+        <textarea class="comment-input"
+                  [(ngModel)]="editForm.commentText"
+                  placeholder="Your comment (optional)"
+                  rows="3"></textarea>
+
+        <div class="edit-actions">
+          <button class="action-btn save-btn"
+                  (click)="saveEdit(review.id!)"
+                  [disabled]="savingId === review.id || editForm.starRating === 0">
+            {{ savingId === review.id ? 'Saving...' : 'Save Changes' }}
+          </button>
+          <button class="action-btn cancel-btn" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+  <div class="empty-state" *ngIf="!isLoading && reviews.length === 0">
+    <div class="empty-icon">⭐</div>
+    <h3>No reviews yet</h3>
+    <p>Purchase and receive products to start writing reviews.</p>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="products-container">
+    <div class="page-header">
+        <h2>Discover Products</h2>
+        <p>Explore the best items from our verified stores.</p>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar" *ngIf="!isLoading && !errorMessage">
+        <div class="search-box">
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Search products..." />
+        </div>
+        <div class="filter-controls">
+            <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()">
+                <option value="ALL">All Categories</option>
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+            <select [(ngModel)]="sortOption" (ngModelChange)="applyFilters()">
+                <option value="DEFAULT">Sort By: Recommended</option>
+                <option value="PRICE_ASC">Price: Low to High</option>
+                <option value="PRICE_DESC">Price: High to Low</option>
+                <option value="NAME_ASC">Name: A to Z</option>
+                <option value="NAME_DESC">Name: Z to A</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-message">
+        <i class="icon">⚠️</i> {{ errorMessage }}
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredProducts.length === 0" class="empty-state">
+        <i class="icon">🛍️</i>
+        <p>No products match your search or filters.</p>
+    </div>
+
+    <!-- Product Grid -->
+    <div *ngIf="!isLoading && !errorMessage && filteredProducts.length > 0" class="product-grid">
+        <div class="product-card" *ngFor="let product of filteredProducts" [routerLink]="['/individual/products', product.id]" style="cursor: pointer;">
+            <div class="product-image" [style.backgroundImage]="'url(' + getImageUrl(product.imageUrl) + ')'">
+                <div class="badge critical" *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Only {{ product.stockQuantity }} left!</div>
+                <div class="badge low" *ngIf="product.stockQuantity > 5 && product.stockQuantity <= 10">Low Stock</div>
+                <div class="badge out-of-stock" *ngIf="product.stockQuantity === 0">Out of Stock</div>
+            </div>
+            
+            <div class="product-details">
+                <div class="product-category">{{ product.categoryName || 'General' }}</div>
+                <h3 class="product-title">{{ product.name }}</h3>
+                <p class="product-desc">{{ product.description }}</p>
+                
+                <div class="product-footer">
+                    <span class="price">₺{{ product.unitPrice | number:'1.2-2' }}</span>
+                    <button class="add-to-cart-btn" [disabled]="product.stockQuantity === 0" (click)="addToCart(product); $event.stopPropagation()">
+                        <i class="icon">🛒</i> Add
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !errorMessage">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+</div>

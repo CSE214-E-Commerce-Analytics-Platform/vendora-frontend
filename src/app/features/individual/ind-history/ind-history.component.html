@@ -1,0 +1,104 @@
+<div class="history-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Purchase History</h2>
+      <p class="header-sub">A complete record of your delivered and cancelled orders.</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row" *ngIf="!isLoading">
+    <div class="stat-card delivered">
+      <span class="stat-icon">🎉</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ deliveredCount }}</span>
+        <span class="stat-label">Delivered</span>
+      </div>
+    </div>
+    <div class="stat-card cancelled">
+      <span class="stat-icon">❌</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ cancelledCount }}</span>
+        <span class="stat-label">Cancelled</span>
+      </div>
+    </div>
+    <div class="stat-card total">
+      <span class="stat-icon">💰</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalSpent | currency:'TRY':'₺':'1.2-2' }}</span>
+        <span class="stat-label">Total Spent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar" *ngIf="!isLoading && allOrders.length > 0">
+    <div class="search-box">
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Search by order ID, store, product..." />
+    </div>
+    <div class="filter-tabs">
+      <button [class.active]="statusFilter === 'ALL'" (click)="statusFilter = 'ALL'; applyFilters()">All</button>
+      <button [class.active]="statusFilter === 'DELIVERED'" (click)="statusFilter = 'DELIVERED'; applyFilters()">Delivered</button>
+      <button [class.active]="statusFilter === 'CANCELLED'" (click)="statusFilter = 'CANCELLED'; applyFilters()">Cancelled</button>
+      <button class="export-btn" (click)="exportToCSV()" style="margin-left: 1rem; background: #22c55e; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="icon">📥</i> Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your history...</p>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="history-table-wrapper" *ngIf="!isLoading && filteredOrders.length > 0">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of filteredOrders">
+          <td class="order-id">#{{ order.id }}</td>
+          <td class="order-date">{{ order.orderDate | date:'mediumDate' }}</td>
+          <td class="order-items">
+            <span *ngIf="order.subOrders && order.subOrders.length > 0">
+              {{ order.subOrders.length }} package(s)
+            </span>
+            <span *ngIf="order.items && order.items.length > 0 && (!order.subOrders || order.subOrders.length === 0)">
+              {{ order.items.length }} item(s)
+            </span>
+          </td>
+          <td class="order-total">{{ order.grandTotal | currency:'TRY':'₺':'1.2-2' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+              {{ getStatusIcon(order.status) }} {{ order.status }}
+            </span>
+          </td>
+          <td>
+            <a class="details-link" [routerLink]="['/individual/orders', order.id]">View Details →</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!isLoading && allOrders.length === 0">
+    <div class="empty-icon">📋</div>
+    <h3>No History Yet</h3>
+    <p>Once your orders are delivered or cancelled, they'll appear here.</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && allOrders.length > 0 && filteredOrders.length === 0">
+    <div class="empty-icon">🔍</div>
+    <h3>No Results Found</h3>
+    <p>Try adjusting your search or filter.</p>
+  </div>
+</div>

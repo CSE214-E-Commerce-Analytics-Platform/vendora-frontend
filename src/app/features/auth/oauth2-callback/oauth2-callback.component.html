@@ -1,0 +1,15 @@
+<div class="auth-wrapper">
+  <div class="auth-form-panel" style="align-items:center; justify-content:center; text-align:center;">
+    @if (error) {
+      <div class="login-error-banner" style="max-width:360px;">
+        <strong>Authentication failed</strong><br>{{ error }}<br>
+        <small style="color:#94a3b8;">Redirecting to login...</small>
+      </div>
+    } @else {
+      <div style="color:#94a3b8; font-size:0.95rem;">
+        <div class="spinner" style="margin:0 auto 16px;"></div>
+        Completing sign-in...
+      </div>
+    }
+  </div>
+</div>

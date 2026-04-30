@@ -1,0 +1,149 @@
+/* ================================================================
+   ADMIN USERS — Premium SaaS Dark
+   ================================================================ */
+.admin-users-container {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
+  animation: fadeSlideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-header { margin-bottom: 20px; }
+.page-header h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.page-header p  { color: var(--text-secondary); margin: 0; font-size: 0.875rem; }
+
+/* ── Filter Bar ───────────────────────────────────────── */
+.role-filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 22px;
+  background: var(--card-bg);
+  padding: 10px 14px;
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+}
+
+.role-tab {
+  padding: 0 16px;
+  height: 36px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-btn);
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.role-tab:hover { border-color: rgba(99,102,241,0.4); color: var(--ind-nav-color); }
+
+.role-tab.active               { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.3); color: var(--ind-nav-color); font-weight: 600; }
+.role-tab.individual-tab.active { background: rgba(14,165,233,0.15); border-color: rgba(14,165,233,0.3); color: #38bdf8; font-weight: 600; }
+.role-tab.corporate-tab.active  { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: #34d399; font-weight: 600; }
+.role-tab.admin-tab.active      { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.3); color: #fde68a; font-weight: 600; }
+
+/* ── States ───────────────────────────────────────────── */
+.loading-state, .error-message, .empty-state {
+  text-align: center; padding: 48px 24px;
+  background: var(--card-bg); border-radius: 16px;
+  border: 1px solid var(--card-border); box-shadow: var(--card-shadow);
+  color: var(--text-secondary);
+}
+
+.spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--admin-accent);
+  border-radius: 50%; width: 36px; height: 36px;
+  animation: spin 0.9s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ── Grid ─────────────────────────────────────────────── */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+/* ── Card ─────────────────────────────────────────────── */
+.user-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  border-top: 3px solid var(--admin-accent);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  display: flex; flex-direction: column;
+}
+
+.user-card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+
+[data-theme="dark"] .user-card:hover {
+  box-shadow: 0 0 28px rgba(167,139,250,0.12), 0 10px 32px rgba(0,0,0,0.5);
+}
+
+.user-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+
+.role-icon {
+  font-size: 1.75rem;
+  background: var(--btn-ghost-bg);
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px; border: 1px solid var(--card-border);
+}
+
+.status-badge {
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+}
+
+.status-badge.active    { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+.status-badge.suspended { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+
+.user-details { flex: 1; margin-bottom: 14px; }
+
+.user-email { margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); word-break: break-all; }
+.user-role  { margin: 0 0 8px 0; color: var(--admin-accent); font-weight: 500; font-size: 0.85rem; }
+
+.user-meta {
+  padding: 6px 10px;
+  background: var(--input-bg);
+  border-radius: 8px; border: 1px solid var(--card-border);
+  font-size: 0.8rem; color: var(--text-secondary); margin: 0;
+}
+
+.action-footer {
+  display: flex; gap: 8px;
+  border-top: 1px solid var(--card-border);
+  padding-top: 14px;
+}
+
+.status-btn, .delete-btn {
+  border: none; border-radius: var(--radius-btn);
+  font-weight: 600; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1); font-size: 0.82rem;
+  font-family: 'DM Sans', sans-serif; padding: 8px 12px;
+}
+
+.status-btn { flex: 1; }
+.delete-btn { flex: 0 0 auto; width: 40px; display: flex; align-items: center; justify-content: center; }
+
+.btn-suspend  { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.btn-suspend:hover:not(:disabled)  { background: rgba(239,68,68,0.2); }
+.btn-activate { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+.btn-activate:hover:not(:disabled) { background: rgba(16,185,129,0.2); }
+
+.delete-btn { background: var(--surface-bg); color: var(--text-secondary); border: 1px solid var(--card-border); }
+.delete-btn:not(:disabled):hover { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(239,68,68,0.2); }
+
+button:disabled { opacity: 0.45; cursor: not-allowed; }

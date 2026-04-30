@@ -1,0 +1,146 @@
+<div class="apply-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-icon">🏢</div>
+    <h2>Become a Corporate Seller</h2>
+    <p>Upgrade your account to a corporate seller and open your own store on our platform.</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Checking your application status...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+
+    <!-- Existing Request Status Card -->
+    <div *ngIf="existingRequest" class="status-card" [ngClass]="getStatusClass()">
+      <div class="status-card-header">
+        <span class="status-icon">{{ getStatusIcon() }}</span>
+        <div>
+          <h3>Application Status</h3>
+          <span class="status-badge" [ngClass]="getStatusClass()">{{ existingRequest.status }}</span>
+        </div>
+      </div>
+
+      <div class="status-details">
+        <div class="detail-row">
+          <span class="detail-label">Company Name</span>
+          <span class="detail-value">{{ existingRequest.companyName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Your Reason</span>
+          <span class="detail-value">{{ existingRequest.reason }}</span>
+        </div>
+        <div class="detail-row" *ngIf="existingRequest.adminNote">
+          <span class="detail-label">Admin Note</span>
+          <span class="detail-value admin-note">{{ existingRequest.adminNote }}</span>
+        </div>
+      </div>
+
+      <!-- Approved message -->
+      <div *ngIf="existingRequest.status === 'APPROVED'" class="result-banner approved-banner">
+        🎉 Congratulations! Your corporate application has been approved. Your store has been created automatically. Please log out and log back in to access your Corporate Dashboard.
+      </div>
+
+      <!-- Rejected message -->
+      <div *ngIf="existingRequest.status === 'REJECTED'" class="result-banner rejected-banner">
+        ❌ Unfortunately your application was rejected. Please review the admin note above and contact support if you have questions.
+      </div>
+
+      <!-- Pending message -->
+      <div *ngIf="existingRequest.status === 'PENDING'" class="result-banner pending-banner">
+        ⏳ Your application is under review. We'll notify you once a decision has been made. This usually takes 1–2 business days.
+      </div>
+    </div>
+
+    <!-- Application Form (only show if no existing request) -->
+    <div *ngIf="!existingRequest" class="apply-form-card">
+      <h3>Submit Your Application</h3>
+      <p class="form-subtitle">Fill in the details below. Our admin team will review your request promptly.</p>
+
+      <!-- Error Banner -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <i>⚠️</i> {{ errorMessage }}
+      </div>
+
+      <!-- Success Banner -->
+      <div *ngIf="successMessage" class="success-banner">
+        <i>✅</i> {{ successMessage }}
+      </div>
+
+      <form (ngSubmit)="submitApplication()" #applyForm="ngForm">
+
+        <div class="form-group">
+          <label for="companyName">Company / Store Name</label>
+          <input
+            id="companyName"
+            type="text"
+            class="form-control"
+            placeholder="e.g. Acme Electronics"
+            [(ngModel)]="companyName"
+            name="companyName"
+            required
+            maxlength="100"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reason">Why do you want to become a corporate seller?</label>
+          <textarea
+            id="reason"
+            class="form-control"
+            placeholder="Briefly describe your business and why you'd like to sell on our platform..."
+            [(ngModel)]="reason"
+            name="reason"
+            required
+            rows="5"
+            maxlength="1000"
+          ></textarea>
+          <span class="char-count">{{ reason.length }} / 1000</span>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="isSubmitting || !companyName.trim() || !reason.trim()"
+        >
+          <span *ngIf="!isSubmitting">🚀 Submit Application</span>
+          <span *ngIf="isSubmitting" class="submitting">
+            <span class="btn-spinner"></span> Submitting...
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="benefits-section" *ngIf="!existingRequest">
+      <h3>What you get as a Corporate Seller</h3>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">🏪</div>
+          <h4>Your Own Store</h4>
+          <p>Get a dedicated storefront to showcase and sell your products.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📦</div>
+          <h4>Inventory Management</h4>
+          <p>Manage your products and stock levels with powerful tools.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📊</div>
+          <h4>Sales Analytics</h4>
+          <p>Track performance with detailed sales and revenue analytics.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⭐</div>
+          <h4>Customer Reviews</h4>
+          <p>Build trust with verified customer reviews for your products.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

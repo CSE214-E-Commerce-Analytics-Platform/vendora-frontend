@@ -1,0 +1,113 @@
+<div class="dashboard-container">
+  <div class="page-header">
+    <h2>Admin Dashboard</h2>
+    <p class="header-sub">Platform overview and key metrics at a glance.</p>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalUsers }}</span>
+          <span class="stat-label">Total Users</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📦</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalOrders }}</span>
+          <span class="stat-label">Total Orders</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalRevenue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Total Revenue</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🏪</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ activeStores }}</span>
+          <span class="stat-label">Active Stores</span>
+        </div>
+      </div>
+      <div class="stat-card alert" *ngIf="pendingApplications > 0">
+        <span class="stat-icon">🔔</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ pendingApplications }}</span>
+          <span class="stat-label">Pending Applications</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <h3 class="chart-title">Last 7 Days — Orders & Revenue</h3>
+        <div class="chart-wrapper">
+          <canvas #orderTrendChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3 class="chart-title">Order Status Distribution</h3>
+        <div class="chart-wrapper doughnut">
+          <canvas #statusChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Recent Orders</h3>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let order of recentOrders">
+            <div class="recent-left">
+              <span class="recent-id">#{{ order.id }}</span>
+              <span class="recent-date">{{ order.orderDate | date:'shortDate' }}</span>
+            </div>
+            <div class="recent-right">
+              <span class="recent-amount">{{ order.grandTotal | currency:'TRY':'₺':'1.2-2' }}</span>
+              <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+            </div>
+          </div>
+          <p class="no-data" *ngIf="recentOrders.length === 0">No orders yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Store Comparison -->
+    <div class="table-card">
+      <h3 class="chart-title">Cross-Store Comparison</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Store Name</th>
+            <th>Total Orders</th>
+            <th>Total Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of storePerformance; let i = index">
+            <td class="rank">#{{ i + 1 }}</td>
+            <td class="store-name">{{ s.name }}</td>
+            <td>{{ s.orders }}</td>
+            <td class="amount">{{ s.revenue | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="storePerformance.length === 0">
+              <td colspan="4" style="text-align: center; color: #6b7280; padding: 1rem;">No store data available.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>

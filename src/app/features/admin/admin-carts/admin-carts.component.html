@@ -1,0 +1,66 @@
+<div class="admin-page-container">
+    <div class="page-header">
+        <h2>Cart Management</h2>
+        <p>Monitor and manage user carts across the platform.</p>
+    </div>
+
+    @if(isLoading) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+    </div>
+    }
+
+    @if(errorMessage) {
+    <div class="error-banner">{{ errorMessage }}</div>
+    }
+
+    @if(!isLoading && !errorMessage) {
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Cart ID</th>
+                        <th>User ID</th>
+                        <th>Total Items</th>
+                        <th>Total Price</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(cart of carts; track cart.id) {
+                    <tr>
+                        <td class="id-col">#{{ cart.id }}</td>
+                        <td>U-{{ cart.userId }}</td>
+                        <td><span class="badge">{{ cart.totalItems || 0 }}</span></td>
+                        <td class="price-col">{{ cart.totalPrice | currency:'TRY':'₺' }}</td>
+                        <td class="date-col">{{ (cart.updateTime | date:'medium') || 'N/A' }}</td>
+                        <td class="actions-col">
+                            <button class="action-btn delete" (click)="deleteCart(cart.id)" title="Delete Cart">🗑️ Delete</button>
+                        </td>
+                    </tr>
+                    }
+                    @if(carts.length === 0) {
+                    <tr>
+                        <td colspan="6" class="empty-row">No carts found in the system.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-controls" *ngIf="totalPages >= 0">
+            <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+            <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+            <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+        
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+    </div>
+    }
+</div>

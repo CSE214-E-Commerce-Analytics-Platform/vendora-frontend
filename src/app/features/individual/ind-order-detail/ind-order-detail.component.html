@@ -1,0 +1,113 @@
+<div class="order-detail-container">
+  
+  <div class="header-actions">
+    <a routerLink="/individual/orders" class="back-link">← Back to My Orders</a>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading order details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && order">
+    <div class="order-header-card">
+      <div class="header-main">
+        <h2>Order #{{ order.id }}</h2>
+        <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+      </div>
+      <div class="header-meta">
+        <div class="meta-item">
+          <span class="meta-label">Date Placed</span>
+          <span class="meta-value">{{ order.orderDate | date:'medium' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Grand Total</span>
+          <span class="meta-value highlight">{{ order.grandTotal | currency:'TRY':'₺' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="packages-section" *ngIf="order.subOrders && order.subOrders.length > 0">
+      <h3>Packages & Deliveries</h3>
+      <p class="section-desc">Your order contains items from different sellers and is split into multiple packages.</p>
+
+      <div class="package-card" *ngFor="let sub of order.subOrders">
+        <div class="package-header">
+          <div class="store-info">
+            <span class="store-icon">🏪</span>
+            <span class="store-name">Sold by: <strong>{{ sub.storeName }}</strong></span>
+          </div>
+          <span class="status-badge narrow" [ngClass]="getStatusClass(sub.status)">{{ sub.status }}</span>
+        </div>
+
+        <div class="package-tracking" *ngIf="shipmentsMap[sub.id!] as shipment">
+          <div class="track-row">
+            <div class="track-item">
+              <span class="label">Tracking #:</span>
+              <span class="value mono">{{ shipment.trackingNumber }}</span>
+            </div>
+            <div class="track-item">
+              <span class="label">Shipping Mode:</span>
+              <span class="value">{{ shipment.mode }}</span>
+            </div>
+            <div class="track-item">
+              <span class="label">Current Status:</span>
+              <span class="value status-text" [ngClass]="getStatusClass(shipment.status)">{{ shipment.status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="package-tracking" *ngIf="!shipmentsMap[sub.id!]">
+           <span class="no-tracking">Shipment is being prepared. Tracking info will be available soon.</span>
+        </div>
+
+        <div class="package-items">
+          <h4>Items in this package</h4>
+          <div class="item-row" *ngFor="let item of sub.items">
+            <div class="item-details">
+              <div class="item-product-img">
+                <img [src]="getImageUrl(productImagesMap[item.productId])" [alt]="item.productName">
+              </div>
+              <span class="qty">{{ item.quantity }}x</span>
+              <span class="name">{{ item.productName }}</span>
+            </div>
+            <div class="item-actions">
+              <span class="price">{{ item.price | currency:'TRY':'₺' }}</span>
+              <ng-container *ngIf="isSubOrderDelivered(sub)">
+                <button class="rate-btn" 
+                        *ngIf="!reviewedProductIds.has(item.productId!)"
+                        (click)="openReviewModal(item.productId!, $event)">
+                  ⭐ Rate Product
+                </button>
+                <button class="rate-btn rated" 
+                        *ngIf="reviewedProductIds.has(item.productId!)"
+                        disabled>
+                  ✅ Rated
+                </button>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && !order">
+    <div class="empty-icon">⚠️</div>
+    <h3>Order Not Found</h3>
+    <p>We couldn't find the order you're looking for.</p>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Rate Product</h3>
+      <button class="close-btn" (click)="closeReviewModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <app-review-widget *ngIf="reviewProductId" [productId]="reviewProductId" [allowWrite]="true"></app-review-widget>
+    </div>
+  </div>
+</div>

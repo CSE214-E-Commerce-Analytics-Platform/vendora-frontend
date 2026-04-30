@@ -1,0 +1,213 @@
+<div class="ai-page">
+
+  <!-- ── Header ── -->
+  <div class="ai-header">
+    <div class="ai-header-left">
+      <span class="ai-dot" [class.pulsing]="isTyping"></span>
+      <div class="ai-header-text">
+        <h2>AI Veri Asistanı</h2>
+        <span class="ai-subtitle">{{ headerSubtitle }}</span>
+      </div>
+    </div>
+    <span class="guardrail-status-badge">🛡 Guardrail: Açık</span>
+  </div>
+
+  <!-- ── Messages ── -->
+  <div class="messages-area" #messagesContainer>
+
+    <!-- Welcome + example questions -->
+    @if (!hasMessages) {
+      <div class="welcome-wrap">
+        <div class="welcome-msg-row">
+          <div class="ai-avatar">AI</div>
+          <div class="welcome-bubble">
+            Merhaba <strong>{{ displayName }}</strong>! Mağazanızla ilgili her soruyu yanıtlarım.
+          </div>
+        </div>
+        <div class="example-section">
+          <p class="example-label">Örnek sorular — tıklayarak dene:</p>
+          <div class="example-grid">
+            @for (q of exampleQuestions; track q) {
+              <button class="example-chip" (click)="useExample(q)">{{ q }}</button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Message list -->
+    @for (msg of messages; track msg.timestamp) {
+
+      <!-- USER -->
+      @if (msg.role === 'user') {
+        <div class="msg-row user-row">
+          <div class="user-bubble">{{ msg.content }}</div>
+        </div>
+      }
+
+      <!-- AI -->
+      @if (msg.role === 'ai') {
+        <div class="msg-row ai-row">
+          <div class="ai-avatar">AI</div>
+          <div class="ai-card">
+
+            <!-- Bar chart -->
+            @if (msg.barItems && msg.barItems.length > 0) {
+              @if (msg.barTitle) {
+                <p class="bar-title">{{ msg.barTitle }}</p>
+              }
+              <div class="bar-list">
+                @for (item of msg.barItems; track item.label) {
+                  <div class="bar-row">
+                    <span class="bar-label">{{ item.label }}</span>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width.%]="item.pct"></div>
+                    </div>
+                    <span class="bar-val">{{ item.value | number }} {{ item.unit }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="ai-text" [innerHTML]="formatAiContent(msg.content)"></div>
+            }
+
+            <!-- SQL -->
+            @if (msg.sqlQuery) {
+              <div class="sql-box">
+                <code>{{ msg.sqlQuery }}</code>
+              </div>
+            }
+
+            <!-- Row / time footer -->
+            @if (msg.rowCount || msg.queryTimeMs) {
+              <div class="row-footer">
+                @if (msg.rowCount) { <span>{{ msg.rowCount }} satır döndü</span> }
+                @if (msg.queryTimeMs) { <span>· {{ formatQueryTime(msg.queryTimeMs) }}</span> }
+              </div>
+            }
+
+          </div>
+        </div>
+      }
+
+      <!-- GUARDRAIL -->
+      @if (msg.role === 'guardrail') {
+        <div class="msg-row gr-row">
+          <div class="gr-avatar">GR</div>
+          <div class="gr-content">
+
+            <!-- INJECTION / SECURITY -->
+            @if (msg.guardrailType === 'INJECTION' || msg.guardrailType === 'SECURITY') {
+              <p class="gr-summary">Bu mesaj güvenlik filtrelerini tetikledi.</p>
+              <span class="gr-badge injection">Guardrail Agent — PROMPT INJECTION</span>
+              <div class="gr-card red">
+                <div class="gr-card-head">
+                  <span class="warn-icon">⚠</span>
+                  <strong>Prompt Injection Tespit Edildi</strong>
+                </div>
+                <table class="gr-table">
+                  <tr><td>Tespit türü</td><td class="danger-text">Prompt Injection</td></tr>
+                  @if (msg.guardrailTrigger) {
+                    <tr><td>Tetikleyici</td><td class="danger-text">{{ msg.guardrailTrigger }}</td></tr>
+                  }
+                  <tr><td>Hedef</td><td class="danger-text">store_id filtresi bypass</td></tr>
+                  <tr><td>Eylem</td><td class="danger-text">İstek tamamen reddedildi</td></tr>
+                </table>
+              </div>
+              @if (msg.sqlQuery) {
+                <div class="blocked-sql-row">
+                  <s class="blocked-sql">{{ msg.sqlQuery }}</s>
+                  <span class="blocked-tag">engellendi</span>
+                </div>
+              }
+              <p class="gr-note">Sistem promptunu değiştirmeye yönelik girişimler engellenir ve kayıt altına alınır.</p>
+              <span class="gr-footer-badge security">Güvenlik olayı loglandı</span>
+            }
+
+            <!-- ACCESS -->
+            @if (msg.guardrailType === 'ACCESS') {
+              <p class="gr-summary">Bu isteği gerçekleştiremiyorum.</p>
+              <span class="gr-badge blocked">Guardrail Agent — ENGELLENDİ</span>
+              <div class="gr-card red">
+                <div class="gr-card-head">
+                  <span class="warn-icon">⚠</span>
+                  <strong>Yetki Dışı Erişim Girişimi</strong>
+                </div>
+                <table class="gr-table">
+                  <tr><td>Tespit türü</td><td class="danger-text">Cross-store data access</td></tr>
+                  @if (msg.guardrailRequestedStore) {
+                    <tr><td>İstenen store</td><td class="danger-text">#{{ msg.guardrailRequestedStore }} (yetkisiz)</td></tr>
+                  }
+                  @if (storeId) {
+                    <tr><td>Oturum store</td><td>sadece #{{ storeId }}</td></tr>
+                  }
+                  <tr><td>Eylem</td><td class="danger-text">SQL üretimi durduruldu</td></tr>
+                </table>
+              </div>
+              @if (storeId) {
+                <p class="gr-note">Yalnızca kendi mağazanız (#{{ storeId }}) için sorgulama yapabilirsiniz.</p>
+              }
+              <span class="gr-footer-badge blocked">SQL üretilmedi</span>
+            }
+
+            <!-- SCOPE -->
+            @if (msg.guardrailType === 'SCOPE') {
+              <p class="gr-summary">Bu sorgu kısıtlı veri kapsamına giriyor.</p>
+              <span class="gr-badge scope">Guardrail Agent — KAPSAM DIŞI</span>
+              <div class="gr-card red">
+                <div class="gr-card-head">
+                  <span class="warn-icon">⚠</span>
+                  <strong>Kapsam Dışı Sorgu</strong>
+                </div>
+                <table class="gr-table">
+                  <tr><td>Tespit türü</td><td class="danger-text">Filter bypass attempt</td></tr>
+                  @if (msg.guardrailTrigger) {
+                    <tr><td>Anahtar kelime</td><td class="danger-text">{{ msg.guardrailTrigger }}</td></tr>
+                  }
+                  <tr><td>Eylem</td><td class="danger-text">SQL üretimi durduruldu</td></tr>
+                </table>
+              </div>
+              @if (msg.guardrailSuggestion) {
+                <div class="gr-card green">
+                  <strong>Bunun yerine yapabilirim:</strong>
+                  <p>{{ msg.guardrailSuggestion }}</p>
+                </div>
+                <span class="gr-footer-badge scope">Kapsam dışı · Alternatif önerildi</span>
+              }
+            }
+
+          </div>
+        </div>
+      }
+
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping) {
+      <div class="msg-row ai-row">
+        <div class="ai-avatar">AI</div>
+        <div class="typing-bubble">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Input ── -->
+  <div class="input-area">
+    <textarea
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      (input)="autoResize($event)"
+      placeholder="Sorunuzu yazın..."
+      [disabled]="isTyping"
+      maxlength="500"
+      rows="1">
+    </textarea>
+    <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
+      Gönder
+    </button>
+  </div>
+
+</div>

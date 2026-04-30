@@ -1,0 +1,78 @@
+<div class="store-detail-container">
+    <div class="back-link">
+        <a (click)="goBack()" style="cursor: pointer;"><i class="icon">⬅️</i> Back to Stores</a>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading store details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-message">
+        <i class="icon">⚠️</i> {{ errorMessage }}
+    </div>
+
+    <!-- Store Header and Products -->
+    <ng-container *ngIf="!isLoading && !errorMessage && store">
+        <div class="store-hero">
+            <div class="hero-content">
+                <h2>{{ store.name }}</h2>
+                <div class="store-meta">
+                    <span class="status-badge" [ngClass]="store.status === 'ACTIVE' ? 'active' : 'inactive'">
+                        {{ store.status }}
+                    </span>
+                    <span class="join-date" *ngIf="store.createdAt">Member since {{ store.createdAt | date:'mediumDate' }}</span>
+                </div>
+            </div>
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="products-section">
+            <h3>Products in this Store ({{ products.length }})</h3>
+
+            <!-- Empty Products State -->
+            <div *ngIf="products.length === 0" class="empty-state">
+                <i class="icon">🛍️</i>
+                <p>This store hasn't added any products yet.</p>
+            </div>
+
+            <!-- Product Grid -->
+            <div *ngIf="products.length > 0" class="product-grid">
+                <div class="product-card" *ngFor="let product of products" [routerLink]="['../../products', product.id]" style="cursor: pointer;">
+            <div class="product-image" [style.backgroundImage]="'url(' + getImageUrl(product.imageUrl) + ')'">
+                        <div class="badge critical" *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Only {{ product.stockQuantity }} left!</div>
+                        <div class="badge low" *ngIf="product.stockQuantity > 5 && product.stockQuantity <= 10">Low Stock</div>
+                        <div class="badge out-of-stock" *ngIf="product.stockQuantity === 0">Out of Stock</div>
+                    </div>
+                    
+                    <div class="product-details">
+                        <div class="product-category">{{ product.categoryName || 'General' }}</div>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-desc">{{ product.description }}</p>
+                        
+                        <div class="product-footer">
+                            <span class="price">₺{{ product.unitPrice | number:'1.2-2' }}</span>
+                            <button *ngIf="userRole === 'INDIVIDUAL'" class="add-to-cart-btn" [disabled]="product.stockQuantity === 0" (click)="addToCart(product); $event.stopPropagation()">
+                                <i class="icon">🛒</i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !errorMessage">
+            <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+            <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+            <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+        
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+    </ng-container>
+</div>

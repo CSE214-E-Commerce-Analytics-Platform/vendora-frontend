@@ -1,0 +1,56 @@
+<div class="audit-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>System Audit Logs</h2>
+      <p class="header-sub">Monitor administrative and system-wide activities.</p>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading audit logs...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User ID</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logs">
+            <td class="timestamp">{{ log.createdAt | date:'medium' }}</td>
+            <td class="mono">#{{ log.userId }}</td>
+            <td><span class="role-badge" [ngClass]="log.userRole ? log.userRole.toLowerCase() : 'unknown'">{{ log.userRole }}</span></td>
+            <td class="action">
+              <span class="action-icon">{{ getActionIcon(log.action) }}</span>
+              {{ log.action }}
+            </td>
+            <td class="details">{{ log.details }}</td>
+          </tr>
+          <tr *ngIf="logs.length === 0">
+              <td colspan="5" class="empty-state">No audit logs found.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-controls" *ngIf="totalPages >= 0">
+          <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+          <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+          <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+      
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,185 @@
+<div class="analytics-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Store Analytics</h2>
+      <p class="header-sub">Revenue, sales, and product performance insights.</p>
+    </div>
+  </div>
+
+  <!-- Date Filter Bar -->
+  <div class="filters-bar" *ngIf="!isLoading">
+      <div class="date-filter">
+          <label>Date Range:</label>
+          <input type="date" [(ngModel)]="startDate" />
+          <span>to</span>
+          <input type="date" [(ngModel)]="endDate" />
+          <button class="btn-apply" (click)="applyDateFilter()">Apply</button>
+      </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalRevenue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Total Revenue</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📦</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalOrders }}</span>
+          <span class="stat-label">Orders</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ avgOrderValue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Avg. Order</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🛍️</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalProducts }}</span>
+          <span class="stat-label">Products</span>
+        </div>
+      </div>
+      <div class="stat-card warning" *ngIf="lowStockCount > 0">
+        <span class="stat-icon">⚠️</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ lowStockCount }}</span>
+          <span class="stat-label">Low Stock</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row" *ngIf="totalOrders > 0">
+      <div class="chart-card wide">
+        <h3 class="chart-title">Monthly Revenue Trend</h3>
+        <div class="chart-wrapper">
+          <canvas #revenueChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drill-Down Detail Table -->
+    <div class="table-card drilldown-card" *ngIf="selectedMonth">
+      <div class="drilldown-header">
+          <h3 class="chart-title">Orders for {{ selectedMonth }}</h3>
+          <button class="btn-close" (click)="selectedMonth = null">Close</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let o of selectedMonthOrders">
+            <td class="order-id">#{{ o.id }}</td>
+            <td>{{ o.orderDate | date:'mediumDate' }}</td>
+            <td>
+                <span class="status-badge">{{ o.status }}</span>
+            </td>
+            <td class="amount">{{ o.grandTotal | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="selectedMonthOrders.length === 0">
+              <td colspan="4" style="text-align: center; color: #6b7280;">No completed orders this month.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="charts-row" *ngIf="totalOrders > 0">
+      <div class="chart-card">
+        <h3 class="chart-title">Top Selling Products</h3>
+        <div class="chart-wrapper">
+          <canvas #topProductsChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Order Status</h3>
+        <div class="chart-wrapper doughnut">
+          <canvas #orderStatusChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="table-card" *ngIf="topProducts.length > 0">
+      <h3 class="chart-title">Product Performance</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>Units Sold</th>
+            <th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of topProducts; let i = index">
+            <td class="rank">{{ i + 1 }}</td>
+            <td class="product-name">{{ p.name }}</td>
+            <td>{{ p.sold }}</td>
+            <td class="amount">{{ p.revenue | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Customer Analytics -->
+    <div class="charts-row" *ngIf="customerAnalytics && customerAnalytics.segments && customerAnalytics.segments.length > 0">
+      <div class="chart-card">
+        <h3 class="chart-title">Customer Segments</h3>
+        <div class="chart-wrapper doughnut">
+          <canvas #customerSegmentsChart></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-card wide" style="overflow-y: auto; display: flex; flex-direction: column;">
+        <h3 class="chart-title">Top Customers</h3>
+        <table class="data-table" style="margin-top: 0;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Email</th>
+              <th>Orders</th>
+              <th>Total Spend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of customerAnalytics.topCustomers || []; let i = index">
+              <td class="rank">{{ i + 1 }}</td>
+              <td class="product-name">{{ c.email }}</td>
+              <td>{{ c.totalOrders }}</td>
+              <td class="amount">{{ c.totalSpend | currency:'TRY':'₺':'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="!customerAnalytics.topCustomers || customerAnalytics.topCustomers.length === 0">
+              <td colspan="4" style="text-align: center; color: #6b7280; padding: 1rem;">No customers found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="totalOrders === 0">
+      <div class="empty-icon">📈</div>
+      <h3>No Data Yet</h3>
+      <p>Once you receive orders, your analytics will appear here.</p>
+    </div>
+  </ng-container>
+</div>

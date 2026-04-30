@@ -1,0 +1,140 @@
+<div class="admin-panel-container">
+  <div class="panel-header">
+    <div class="header-content">
+      <h2>Global Orders</h2>
+      <p>View and monitor all orders across the entire platform.</p>
+    </div>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading all system orders...</p>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading && orders.length > 0">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Total Value</th>
+          <th>Status</th>
+          <th>Sub Orders</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let order of orders">
+          <tr class="main-row" [class.expanded]="expandedOrderId === order.id" (click)="toggleExpand(order.id)">
+            <td class="id-cell">#{{ order.id }}</td>
+            <td>{{ order.orderDate | date:'medium' }}</td>
+            <td class="price-cell">{{ order.grandTotal | currency:'TRY':'₺' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                {{ getStatusIcon(order.status) }} {{ order.status }}
+              </span>
+            </td>
+            <td>{{ order.subOrders.length || 0 }} Stores</td>
+            <td>
+              <button class="icon-btn" title="View Details">
+                <span *ngIf="expandedOrderId !== order.id">▼</span>
+                <span *ngIf="expandedOrderId === order.id">▲</span>
+              </button>
+            </td>
+          </tr>
+          
+          <!-- Expanded Details Row -->
+          <tr class="details-row" *ngIf="expandedOrderId === order.id">
+            <td colspan="6" class="details-cell">
+              <div class="details-content">
+                
+                <div class="details-section" *ngIf="order.items && order.items.length > 0">
+                  <h4>Global Order Items</h4>
+                  <div class="items-list">
+                    <div class="item-pill" *ngFor="let item of order.items">
+                      <span class="item-qty">{{ item.quantity }}x</span>
+                      <span class="item-name">{{ item.productName }}</span>
+                      <span class="item-price">{{ item.price | currency:'TRY':'₺' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="details-section" *ngIf="order.subOrders && order.subOrders.length > 0">
+                  <h4>Fulfillment by Stores</h4>
+                  <table class="sub-table">
+                    <thead>
+                      <tr>
+                        <th>Store Name</th>
+                        <th>Sub-Order ID</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Shipment & Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let sub of order.subOrders">
+                        <td class="store-name-cell">🏪 {{ sub.storeName }}</td>
+                        <td>#{{ sub.id }}</td>
+                        <td class="sub-items-cell">
+                          <span *ngFor="let si of sub.items; let last=last">
+                            {{ si.quantity }}x {{ si.productName }}{{ !last ? ', ' : '' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="status-badge narrow" [ngClass]="getStatusClass(sub.status)">{{ sub.status }}</span>
+                        </td>
+                        <td>
+                          <!-- Shipment Actions for Sub Order -->
+                          <div class="shipment-cell" *ngIf="shipmentsMap[sub.id!] as shipment; else noShipment">
+                            <div class="s-info-mini">
+                              <strong>Trk:</strong> <span class="mono">{{ shipment.trackingNumber }}</span>
+                              <span class="status-badge narrow" [ngClass]="getStatusClass(shipment.status)">{{ shipment.status }}</span>
+                            </div>
+                            
+                            <div class="admin-actions-mini" *ngIf="shipment.status !== ShipmentStatus.DELIVERED && shipment.status !== ShipmentStatus.CANCELLED && shipment.status !== ShipmentStatus.RETURNED">
+                              <button class="btn-mini btn-warning" title="Out for Delivery" (click)="updateShipmentStatus(order.id!, shipment.id!, ShipmentStatus.OUT_FOR_DELIVERY)" [disabled]="isUpdatingShipment">
+                                🚚 Out for Delivery
+                              </button>
+                              <button class="btn-mini btn-success" title="Delivered" (click)="updateShipmentStatus(order.id!, shipment.id!, ShipmentStatus.DELIVERED)" [disabled]="isUpdatingShipment">
+                                ✅ Delivered
+                              </button>
+                              <button class="btn-mini btn-danger" title="Cancel" (click)="cancelShipment(order.id!, shipment.id!)" [disabled]="isUpdatingShipment">
+                                ❌ Cancel
+                              </button>
+                            </div>
+                          </div>
+                          <ng-template #noShipment>
+                            <span class="text-muted" style="font-size: 0.8rem;">No shipment initialized yet.</span>
+                          </ng-template>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
+    <div class="empty-icon">📊</div>
+    <h3>No Orders Yet</h3>
+    <p>No transactions have occurred on the platform.</p>
+  </div>
+</div>

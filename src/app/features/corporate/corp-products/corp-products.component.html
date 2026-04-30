@@ -1,0 +1,143 @@
+<div class="prod-page">
+
+  <!-- Page Header -->
+  <div class="prod-header">
+    <div class="prod-header-left">
+      <h2>Product Management</h2>
+      <p>Add, edit and manage your store's product catalogue.</p>
+    </div>
+    <div class="prod-header-right">
+      <button class="btn-new-product" (click)="openProductModal()" [disabled]="!selectedStoreId">
+        ＋ New Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+
+  <div *ngIf="!isLoading && selectedStoreId && products.length === 0" class="alert-info">
+    ℹ️ No products in this store yet. Click <strong>New Product</strong> to add one.
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Product Cards Grid -->
+  <div class="product-grid" *ngIf="!isLoading && products.length > 0">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="card-image">
+        <img [src]="getImageUrl(product.imageUrl)" [alt]="product.name" />
+        <span class="stock-pill"
+          [ngClass]="{
+            'ok':       product.stockQuantity > 10,
+            'low':      product.stockQuantity > 5 && product.stockQuantity <= 10,
+            'critical': product.stockQuantity > 0 && product.stockQuantity <= 5,
+            'empty':    product.stockQuantity === 0
+          }">
+          <ng-container *ngIf="product.stockQuantity === 0">Out of Stock</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Only {{ product.stockQuantity }} left!</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 5 && product.stockQuantity <= 10">{{ product.stockQuantity }} left</ng-container>
+          <ng-container *ngIf="product.stockQuantity > 10">In Stock</ng-container>
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <span class="cat-badge">{{ product.categoryName || 'Uncategorized' }}</span>
+          <span class="sku-badge">{{ product.sku }}</span>
+        </div>
+        <h3 class="card-title">{{ product.name }}</h3>
+        <p class="card-desc">{{ product.description }}</p>
+        <div class="card-footer">
+          <span class="card-price">{{ product.unitPrice | currency:'TRY':'₺':'1.2-2' }}</span>
+          <div class="card-actions">
+            <button class="btn-icon edit" title="Edit" (click)="openProductModal(product)">✏️</button>
+            <button class="btn-icon delete" title="Delete" (click)="deleteProduct(product.id)">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== Product Modal ===== -->
+<div class="modal-overlay" *ngIf="showProductModal" (click)="closeProductModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h5>{{ editingProductId ? 'Edit Product' : 'Add New Product' }}</h5>
+      <button class="modal-close" (click)="closeProductModal()" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label-text">Product Name *</label>
+            <input type="text" class="form-input" formControlName="name" placeholder="e.g. Minimalist Vase">
+          </div>
+          <div class="form-group">
+            <label class="form-label-text">SKU *</label>
+            <input type="text" class="form-input" formControlName="sku" placeholder="e.g. VZ-1001">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label-text">Description *</label>
+          <textarea class="form-textarea" rows="3" formControlName="description"
+            placeholder="Describe the product features..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label-text">Unit Price (₺) *</label>
+            <input type="number" step="0.01" class="form-input" formControlName="unitPrice" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label-text">Stock Quantity *</label>
+            <input type="number" class="form-input" formControlName="stockQuantity" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label-text">Category *</label>
+            <select class="form-select" formControlName="categoryId">
+              <option [ngValue]="null" disabled>Select Category</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label-text">Image URL *</label>
+            <input type="url" class="form-input" formControlName="imageUrl" placeholder="https://...">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeProductModal()">Cancel</button>
+          <button type="submit" class="btn-save" [disabled]="productForm.invalid">
+            {{ editingProductId ? 'Update' : 'Save Product' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>

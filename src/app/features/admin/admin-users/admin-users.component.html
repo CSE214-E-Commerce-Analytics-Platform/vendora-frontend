@@ -1,0 +1,78 @@
+<div class="admin-users-container">
+    <div class="page-header">
+        <h2>User Management</h2>
+        <p>Manage platform accounts, roles, and access statuses.</p>
+    </div>
+
+    <!-- Role Filter Tabs -->
+    <div class="role-filter-bar">
+        <button class="role-tab" [ngClass]="{'active': selectedRole === 'ALL'}" (click)="setRoleFilter('ALL')">
+            👥 All
+        </button>
+        <button class="role-tab individual-tab" [ngClass]="{'active': selectedRole === 'INDIVIDUAL'}" (click)="setRoleFilter('INDIVIDUAL')">
+            👤 Individual
+        </button>
+        <button class="role-tab corporate-tab" [ngClass]="{'active': selectedRole === 'CORPORATE'}" (click)="setRoleFilter('CORPORATE')">
+            🏢 Corporate
+        </button>
+        <button class="role-tab admin-tab" [ngClass]="{'active': selectedRole === 'ADMIN'}" (click)="setRoleFilter('ADMIN')">
+            👑 Admin
+        </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading users...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-message">
+        <i class="icon">⚠️</i> {{ errorMessage }}
+    </div>
+
+    <!-- Users Grid -->
+    <div *ngIf="!isLoading && !errorMessage" class="users-grid">
+        <div class="user-card" *ngFor="let user of users">
+            <div class="user-card-header">
+                <div class="role-icon" [title]="user.roleType">{{ getRoleIcon(user.roleType) }}</div>
+                <span class="status-badge" [ngClass]="isUserActive(user) ? 'active' : 'suspended'">
+                    {{ isUserActive(user) ? 'Active' : 'Suspended' }}
+                </span>
+            </div>
+            
+            <div class="user-details">
+                <h3 class="user-email">{{ user.email }}</h3>
+                <p class="user-role">{{ user.roleType | titlecase }}</p>
+                <p class="user-meta" *ngIf="user.storeId">Store ID: {{ user.storeId }}</p>
+            </div>
+            
+            <div class="action-footer">
+                <button class="status-btn" [ngClass]="isUserActive(user) ? 'btn-suspend' : 'btn-activate'"
+                    (click)="toggleUserStatus(user)"
+                    [disabled]="user.email === currentUserEmail || user.roleType === 'ADMIN'"
+                    [title]="user.email === currentUserEmail ? 'You cannot suspend your own account' : user.roleType === 'ADMIN' ? 'Admin accounts cannot be suspended' : ''">
+                    {{ isUserActive(user) ? 'Suspend' : 'Activate' }}
+                </button>
+                <button class="delete-btn"
+                    (click)="deleteUser(user.id)"
+                    [disabled]="user.email === currentUserEmail || user.roleType === 'ADMIN'"
+                    [title]="user.email === currentUserEmail ? 'You cannot delete your own account' : user.roleType === 'ADMIN' ? 'Admin accounts cannot be deleted' : ''">
+                    <i class="icon">🗑️</i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !errorMessage">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+</div>

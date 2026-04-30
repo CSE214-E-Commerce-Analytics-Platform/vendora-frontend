@@ -1,0 +1,104 @@
+<!-- Backdrop -->
+@if (isOpen) {
+<div class="sidebar-backdrop" (click)="close()"></div>
+}
+
+<!-- Sidebar Panel -->
+<div class="sidebar-panel" [class.open]="isOpen">
+
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="header-left">
+      <lucide-icon [img]="icons.History" [size]="18" class="header-icon"></lucide-icon>
+      <span class="header-title">Chat History</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn new-chat-btn" (click)="onNewChat()" title="New Chat">
+        <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon>
+      </button>
+      <button class="icon-btn close-sidebar-btn" (click)="close()" title="Close">
+        <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="sidebar-search">
+    <lucide-icon [img]="icons.Search" [size]="14" class="search-icon"></lucide-icon>
+    <input
+      type="text"
+      [(ngModel)]="searchQuery"
+      (input)="onSearch()"
+      placeholder="Search conversations..."
+      class="search-input"
+    />
+  </div>
+
+  <!-- History List -->
+  <div class="sidebar-body">
+
+    @if (isLoading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading history...</span>
+      </div>
+    }
+
+    @if (!isLoading && groups.length === 0) {
+      <div class="empty-state">
+        <lucide-icon [img]="icons.MessageSquare" [size]="32" class="empty-icon"></lucide-icon>
+        <p>No conversations yet</p>
+        <span class="empty-hint">Start a new chat to begin</span>
+      </div>
+    }
+
+    @for (group of groups; track group.label) {
+      <div class="history-group">
+        <div class="group-label">
+          <lucide-icon [img]="icons.Clock" [size]="12" class="group-icon"></lucide-icon>
+          {{ group.label }}
+        </div>
+
+        @for (item of group.items; track item.id) {
+          <div class="history-item" (click)="selectItem(item)" [class.editing]="editingId === item.id">
+
+            @if (editingId === item.id) {
+              <!-- Rename mode -->
+              <div class="rename-row">
+                <input
+                  type="text"
+                  [(ngModel)]="editTitle"
+                  (keydown.enter)="confirmRename(item)"
+                  (keydown.escape)="cancelRename()"
+                  class="rename-input"
+                  autofocus
+                />
+                <button class="icon-btn confirm-btn" (click)="confirmRename(item); $event.stopPropagation()">
+                  <lucide-icon [img]="icons.Check" [size]="14"></lucide-icon>
+                </button>
+                <button class="icon-btn cancel-btn" (click)="cancelRename(); $event.stopPropagation()">
+                  <lucide-icon [img]="icons.X" [size]="14"></lucide-icon>
+                </button>
+              </div>
+            } @else {
+              <!-- Normal display -->
+              <lucide-icon [img]="icons.MessageSquare" [size]="14" class="item-icon"></lucide-icon>
+              <span class="item-title">{{ item.title }}</span>
+              <div class="item-actions">
+                <button class="icon-btn rename-btn" (click)="startRename(item, $event)" title="Rename">
+                  <lucide-icon [img]="icons.Pencil" [size]="13"></lucide-icon>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteItem(item, $event)" title="Delete">
+                  <lucide-icon [img]="icons.Trash2" [size]="13"></lucide-icon>
+                </button>
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+</div>

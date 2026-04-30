@@ -1,0 +1,69 @@
+<div class="product-list-wrapper">
+    <div class="page-header">
+        <h1>Products</h1>
+        <p class="subtitle">Browse and manage your product catalog</p>
+    </div>
+
+    <!-- Category Filter -->
+    @if (categories.length > 1) {
+    <div class="category-filter">
+        @for (cat of categories; track cat) {
+        <button class="filter-chip" [class.active]="selectedCategory === cat" (click)="filterByCategory(cat)">
+            {{ cat }}
+        </button>
+        }
+    </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage) {
+    <div class="error-container">
+        <p>{{ errorMessage }}</p>
+        <button class="retry-btn" (click)="loadProducts()">Retry</button>
+    </div>
+    }
+
+    <!-- Product Grid -->
+    @if (!isLoading && !errorMessage) {
+    @if (filteredProducts.length === 0) {
+    <div class="empty-state">
+        <p>No products found.</p>
+    </div>
+    } @else {
+    <div class="product-grid">
+        @for (product of filteredProducts; track product.id) {
+        <div class="product-card" (click)="viewProduct(product.id)">
+            <div class="card-image">
+                @if (product.imageUrl) {
+                <img [src]="`assets/images/${product.imageUrl}`" [alt]="product.name">
+                } @else {
+                <div class="placeholder-image">
+                    <span>📦</span>
+                </div>
+                }
+                <span class="category-badge">{{ product.categoryName }}</span>
+            </div>
+            <div class="card-body">
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-desc">{{ product.description }}</p>
+                <div class="card-footer">
+                    <span class="price">₺{{ product.unitPrice | number:'1.2-2' }}</span>
+                    <span class="stock" [class.low-stock]="product.stockQuantity < 10">
+                        {{ product.stockQuantity }} in stock
+                    </span>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+    }
+</div>

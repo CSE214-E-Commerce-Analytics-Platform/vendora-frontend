@@ -1,0 +1,74 @@
+<div class="detail-wrapper">
+    <!-- Loading -->
+    @if (isLoading) {
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading product...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (errorMessage) {
+    <div class="error-container">
+        <p>{{ errorMessage }}</p>
+        <button class="back-btn" (click)="goBack()">← Back to Products</button>
+    </div>
+    }
+
+    <!-- Product Detail -->
+    @if (product && !isLoading) {
+    <button class="back-btn" (click)="goBack()">← Back to Products</button>
+
+    <div class="detail-card">
+        <div class="detail-image">
+            @if (product.imageUrl) {
+            <img [src]="getImageUrl(product.imageUrl)" [alt]="product.name">
+            } @else {
+            <div class="placeholder-image">
+                <span>📦</span>
+            </div>
+            }
+        </div>
+
+        <div class="detail-info">
+            <span class="category-tag">{{ product.categoryName || 'General' }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            <p class="product-description">{{ product.description }}</p>
+
+            <div class="price-block">
+                <span class="price-label">Price</span>
+                <span class="price-value">₺{{ product.unitPrice | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="availability critical" *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">
+                <span class="avail-dot critical-dot"></span>
+                <span>🔥 Only {{ product.stockQuantity }} left — Order soon!</span>
+            </div>
+            <div class="availability" *ngIf="product.stockQuantity > 5">
+                <span class="avail-dot in-stock"></span>
+                <span>In Stock</span>
+            </div>
+            <div class="availability" *ngIf="product.stockQuantity === 0">
+                <span class="avail-dot out-stock"></span>
+                <span>Out of Stock</span>
+            </div>
+
+            <div class="action-section">
+                <div class="qty-selector">
+                    <button class="qty-btn" (click)="decrementQty()" [disabled]="quantity <= 1">−</button>
+                    <span class="qty-value">{{ quantity }}</span>
+                    <button class="qty-btn" (click)="incrementQty()">+</button>
+                </div>
+                <button class="add-to-cart-btn" (click)="addToCart(product.id)" [disabled]="product.stockQuantity === 0">
+                    🛒 Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Section -->
+    <div class="product-reviews-section">
+        <app-review-widget [productId]="product.id!" [allowWrite]="false"></app-review-widget>
+    </div>
+    }
+</div>

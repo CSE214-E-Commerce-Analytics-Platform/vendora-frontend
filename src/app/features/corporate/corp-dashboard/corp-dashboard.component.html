@@ -1,0 +1,73 @@
+<div class="dash-page">
+
+  <!-- Page Header -->
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <h2>Corporate Dashboard</h2>
+      <p>View and manage your store profile.</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your store...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && !store" class="empty-state">
+    <div class="empty-icon">🏬</div>
+    <p>No store found. Your store will be automatically provisioned by the system.</p>
+  </div>
+
+  <!-- Store Profile Card -->
+  <div class="store-profile" *ngIf="!isLoading && store">
+    <div class="store-card">
+      <div class="store-card-banner"></div>
+      <div class="store-card-body">
+        <div class="store-card-meta">
+          <h5 class="store-card-name">{{ store.name }}</h5>
+          <span class="status-pill" [ngClass]="store.status === 'ACTIVE' ? 'active' : 'inactive'">
+            {{ store.status }}
+          </span>
+        </div>
+        <p class="store-card-date">Created {{ store.createdAt | date:'dd MMM yyyy' }}</p>
+        <div class="store-actions">
+          <button class="btn-manage" (click)="openEditModal()">
+            <i class="bi bi-pencil-square"></i> Edit Store Details
+          </button>
+          <a href="/corporate/products" class="btn-manage secondary">
+            <i class="bi bi-box-seam"></i> Manage Products
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Edit Store Modal ===== -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5>Edit Store</h5>
+      <button class="modal-close" (click)="closeEditModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="editForm" (ngSubmit)="saveStore()">
+        <label class="form-label-text" for="storeName">Store Name</label>
+        <input
+          type="text"
+          class="form-input"
+          id="storeName"
+          formControlName="name"
+          placeholder="Name of your awesome store..."
+        >
+        <p *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="form-error">
+          Store name must be at least 3 characters.
+        </p>
+        <button type="submit" class="btn-submit" [disabled]="editForm.invalid">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>

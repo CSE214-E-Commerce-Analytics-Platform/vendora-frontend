@@ -1,0 +1,79 @@
+<div class="orders-container">
+  <div class="orders-header">
+    <h2>My Orders</h2>
+    <p class="header-sub">Track, manage, and view your order history.</p>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your orders...</p>
+  </div>
+
+  <div class="orders-list" *ngIf="!isLoading && orders.length > 0">
+    <div class="order-card" *ngFor="let order of orders">
+      
+      <div class="order-summary">
+        <div class="order-info-group">
+          <span class="order-label">Order #</span>
+          <span class="order-value">{{ order.id }}</span>
+        </div>
+        
+        <div class="order-info-group date-group">
+          <span class="order-label">Date</span>
+          <span class="order-value">{{ order.orderDate | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="order-info-group status-group">
+          <span class="order-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ getStatusIcon(order.status) }} {{ order.status }}
+          </span>
+        </div>
+
+        <div class="order-info-group total-group">
+          <span class="order-label">Total</span>
+          <span class="order-value highlight">{{ order.grandTotal | currency:'TRY':'₺' }}</span>
+        </div>
+
+        <div class="order-actions-group">
+          <a [routerLink]="['/individual/orders', order.id]" class="view-details-btn">View Details</a>
+          
+          <button class="action-btn cancel-btn" 
+                  *ngIf="isCancellable(order)" 
+                  (click)="cancelOrder(order.id)"
+                  [disabled]="cancellingId === order.id">
+            <span *ngIf="cancellingId !== order.id">Cancel</span>
+            <span *ngIf="cancellingId === order.id">...</span>
+          </button>
+          
+          <button class="action-btn pay-btn" 
+                  *ngIf="isPending(order)" 
+                  (click)="payNow(order.id)"
+                  [disabled]="payingId === order.id">
+            <span *ngIf="payingId !== order.id">💳 Pay Now</span>
+            <span *ngIf="payingId === order.id">...</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+  <div class="empty-state" *ngIf="!isLoading && orders.length === 0">
+    <div class="empty-icon">📦</div>
+    <h3>No orders found</h3>
+    <p>You haven't placed any orders yet.</p>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="stores-container">
+    <div class="page-header">
+        <h2>Our Official Stores</h2>
+        <p>Browse products directly from your favorite vendors.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading stores...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="error-message">
+        <i class="icon">⚠️</i> {{ errorMessage }}
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && stores.length === 0" class="empty-state">
+        <i class="icon">🏪</i>
+        <p>No stores available right now.</p>
+    </div>
+
+    <!-- Store Grid -->
+    <div *ngIf="!isLoading && !errorMessage && stores.length > 0" class="store-grid">
+        <div class="store-card" *ngFor="let store of stores" [routerLink]="['/individual/stores', store.id]" style="cursor: pointer;">
+            <div class="store-header">
+                <div class="store-avatar">
+                   🏢
+                </div>
+                <span class="status-badge" [ngClass]="store.status === 'ACTIVE' ? 'active' : 'inactive'">
+                    {{ store.status }}
+                </span>
+            </div>
+            
+            <div class="store-details">
+                <h3 class="store-name">{{ store.name }}</h3>
+                <p class="store-joined" *ngIf="store.createdAt">Joined {{ store.createdAt | date:'mediumDate' }}</p>
+                <p class="store-joined" *ngIf="!store.createdAt">Recently Joined</p>
+                
+                <div class="store-footer">
+                    <button class="visit-btn" [routerLink]="['/individual/stores', store.id]">
+                        Visit Store <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !errorMessage">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+</div>

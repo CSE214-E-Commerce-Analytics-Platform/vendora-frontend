@@ -1,0 +1,90 @@
+.audit-container {
+  display: flex; flex-direction: column; gap: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+.page-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.header-content h2 { margin: 0 0 8px; font-size: 1.8rem; color: var(--text-primary); }
+.header-sub { margin: 0; color: var(--text-secondary); }
+
+/* Table */
+.table-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px; overflow: hidden;
+}
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead { background: var(--surface-bg); }
+.data-table th {
+  text-align: left; padding: 14px 20px; font-size: 0.8rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border-color);
+}
+.data-table td {
+  padding: 16px 20px; color: var(--text-primary); font-size: 0.95rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: rgba(99,102,241,0.03); }
+
+.timestamp { color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; }
+.mono { font-family: monospace; font-weight: 600; color: var(--text-secondary); }
+
+.role-badge {
+  padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; background: var(--surface-bg); color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.role-badge.admin { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
+.role-badge.corporate { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.2); }
+.role-badge.individual { background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.2); }
+
+.action { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.action-icon { font-size: 1.1rem; }
+
+.details { color: var(--text-secondary); line-height: 1.5; max-width: 400px; word-break: break-word; }
+
+.empty-state { text-align: center; color: var(--text-muted); padding: 40px !important; }
+
+/* Pagination */
+.pagination-controls {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; background: var(--surface-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-page {
+    background: var(--card-bg); color: var(--text-primary);
+    border: 1px solid var(--border-color); border-radius: 8px;
+    padding: 8px 16px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-page:hover:not(:disabled) { border-color: var(--admin-accent); color: var(--admin-accent); }
+.btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.page-info { color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+
+/* Loader */
+.loader {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 20px;
+  background: var(--card-bg); border: 1px dashed var(--border-color);
+  border-radius: 16px; color: var(--text-secondary); text-align: center; gap: 16px;
+}
+
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--admin-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

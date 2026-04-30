@@ -1,0 +1,135 @@
+<div class="tracking-page">
+  <div class="tracking-container">
+    <div class="header-section">
+      <h1 class="page-title">Track Your Order</h1>
+      <p class="subtitle">Enter your internal tracking number below (e.g., FRK-...)</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-card card" *ngIf="error">
+      <div class="icon">⚠️</div>
+      <p>{{ error }}</p>
+      <a routerLink="/login" class="back-link">Return to Home</a>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Locating your shipment...</p>
+    </div>
+
+    <!-- Success State -->
+    <div class="shipment-card card" *ngIf="!isLoading && shipment && !error">
+      
+      <div class="shipment-header">
+        <div class="info-group">
+          <label>Tracking Number</label>
+          <div class="value fw-bold">{{ shipment.trackingNumber }}</div>
+        </div>
+        <div class="info-group">
+          <label>Status</label>
+          <div class="value">
+            <span class="badge" [ngClass]="{
+              'badge-success': shipment.status === 'DELIVERED',
+              'badge-warning': shipment.status === 'IN_TRANSIT' || shipment.status === 'OUT_FOR_DELIVERY',
+              'badge-error': shipment.status === 'CANCELLED',
+              'badge-neutral': shipment.status === 'PENDING' || shipment.status === 'LABEL_CREATED' || shipment.status === 'RETURNED'
+            }">{{ shipment.status.replace('_', ' ') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shipment-details">
+        <div class="detail-item">
+          <span class="label">Warehouse:</span>
+          <span class="text">{{ shipment.warehouse }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Mode:</span>
+          <span class="text">{{ shipment.mode }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Est. Delivery:</span>
+          <span class="text fw-bold">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="detail-item full-width" *ngIf="shipment.deliveryAddress" style="grid-column: 1 / -1;">
+          <span class="label">Delivery Address:</span>
+          <span class="text">{{ shipment.deliveryAddress }}</span>
+        </div>
+      </div>
+
+      <!-- Vertical Stepper -->
+      <div class="stepper-wrapper">
+        <h3 class="stepper-title">Shipment Progress</h3>
+        
+        <div class="stepper">
+          
+          <div class="step" [ngClass]="getStepStatus(0)">
+            <div class="step-indicator">
+              <div class="step-icon">📦</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-content">
+              <h4 class="step-name">Pending</h4>
+              <p class="step-desc">Order has been placed and is waiting to be processed.</p>
+            </div>
+          </div>
+
+          <div class="step" [ngClass]="getStepStatus(1)">
+            <div class="step-indicator">
+              <div class="step-icon">🏷️</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-content">
+              <h4 class="step-name">Label Created</h4>
+              <p class="step-desc">Shipping label has been generated at the warehouse.</p>
+            </div>
+          </div>
+
+          <div class="step" [ngClass]="getStepStatus(2)">
+            <div class="step-indicator">
+              <div class="step-icon">🚚</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-content">
+              <h4 class="step-name">In Transit</h4>
+              <p class="step-desc">Package is on its way to the destination facility.</p>
+            </div>
+          </div>
+
+          <div class="step" [ngClass]="getStepStatus(3)">
+            <div class="step-indicator">
+              <div class="step-icon">🛵</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-content">
+              <h4 class="step-name">Out for Delivery</h4>
+              <p class="step-desc">Package is out for delivery with the local courier.</p>
+            </div>
+          </div>
+
+          <div class="step" [ngClass]="getStepStatus(4)">
+            <div class="step-indicator">
+              <div class="step-icon">✅</div>
+              <!-- No line for last step -->
+            </div>
+            <div class="step-content">
+              <h4 class="step-name">Delivered</h4>
+              <p class="step-desc">Package has been successfully delivered.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="cancelled-alert" *ngIf="shipment.status === 'CANCELLED'">
+          This shipment was cancelled.
+        </div>
+        <div class="returned-alert" *ngIf="shipment.status === 'RETURNED'">
+          This shipment was returned to sender.
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

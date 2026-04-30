@@ -1,0 +1,157 @@
+<div class="shipments-container">
+  <div class="shipments-header">
+    <div class="header-content">
+      <h2>Shipment Management</h2>
+      <p class="header-sub">Create and track shipments for your store orders.</p>
+    </div>
+    <div class="header-actions">
+      <button class="new-shipment-btn" (click)="showInitForm = !showInitForm">
+        {{ showInitForm ? '✕ Close' : '+ New Shipment' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Initialize Shipment Form -->
+  <div class="init-form-card" *ngIf="showInitForm">
+    <h3>Create New Shipment</h3>
+
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Order to Ship</label>
+        <select [(ngModel)]="initForm.childOrderId" [disabled]="isLoadingOrders">
+          <option [ngValue]="0">{{ isLoadingOrders ? 'Loading orders...' : paidOrders.length === 0 ? 'No paid orders available' : 'Select an order' }}</option>
+          <option *ngFor="let order of paidOrders" [value]="order.id">
+            Order #{{ order.id }} — {{ order.grandTotal | currency:'TRY':'₺' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Warehouse</label>
+        <input type="text" [(ngModel)]="initForm.warehouse" placeholder="e.g. Istanbul Warehouse">
+      </div>
+
+      <div class="form-row">
+        <label>Shipping Mode</label>
+        <input type="text" [(ngModel)]="initForm.mode" placeholder="e.g. Standard, Express">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="create-btn"
+              (click)="initializeShipment()"
+              [disabled]="isInitializing || !initForm.childOrderId || !initForm.warehouse || !initForm.mode">
+        {{ isInitializing ? 'Creating...' : 'Create Shipment' }}
+      </button>
+      <button class="cancel-btn" (click)="showInitForm = false">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Shipments Loading -->
+  <div class="loader" *ngIf="isLoadingShipments">
+    <div class="spinner"></div>
+    <p>Loading shipments...</p>
+  </div>
+
+  <!-- Shipments List -->
+  <div class="shipments-list" *ngIf="!isLoadingShipments && shipments.length > 0">
+    <div class="shipment-card" *ngFor="let shipment of shipments" [class.expanded]="expandedShipmentId === shipment.id">
+
+      <!-- Summary Row -->
+      <div class="shipment-summary" (click)="toggleExpand(shipment.id)">
+        <div class="summary-group">
+          <span class="summary-label">Tracking #</span>
+          <span class="tracking-number">{{ shipment.trackingNumber }}</span>
+        </div>
+        <div class="summary-group">
+          <span class="summary-label">Order</span>
+          <span class="summary-value">#{{ shipment.orderId }}</span>
+        </div>
+        <div class="summary-group">
+          <span class="summary-label">Mode</span>
+          <span class="summary-value">{{ shipment.mode }}</span>
+        </div>
+        <div class="summary-group">
+          <span class="summary-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusClass(shipment.status)">
+            {{ getStatusIcon(shipment.status) }} {{ shipment.status }}
+          </span>
+        </div>
+        <div class="expand-icon">
+          <span *ngIf="expandedShipmentId !== shipment.id">▼</span>
+          <span *ngIf="expandedShipmentId === shipment.id">▲</span>
+        </div>
+      </div>
+
+      <!-- Expanded Details -->
+      <div class="shipment-details" *ngIf="expandedShipmentId === shipment.id">
+        <div class="details-divider"></div>
+
+        <div class="details-grid">
+          <div class="detail-row">
+            <span class="detail-label">Warehouse</span>
+            <span class="detail-value">{{ shipment.warehouse }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Est. Delivery</span>
+            <span class="detail-value">{{ shipment.estimatedDeliveryDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="detail-row" style="grid-column: 1 / -1;" *ngIf="shipment.deliveryAddress">
+            <span class="detail-label">Delivery Address</span>
+            <span class="detail-value">{{ shipment.deliveryAddress }}</span>
+          </div>
+        </div>
+
+        <!-- Status Update Buttons -->
+        <div class="actions-section" *ngIf="getNextStatuses(shipment.status).length > 0 || canCancel(shipment.status)">
+          <div class="next-statuses" *ngIf="getNextStatuses(shipment.status).length > 0">
+            <span class="actions-label">Update Status:</span>
+            <button class="status-btn"
+                    *ngFor="let next of getNextStatuses(shipment.status)"
+                    [ngClass]="getStatusClass(next)"
+                    (click)="updateStatus(shipment.id!, next); $event.stopPropagation()"
+                    [disabled]="updatingId === shipment.id">
+              {{ getStatusIcon(next) }} {{ next }}
+            </button>
+          </div>
+
+          <button class="cancel-shipment-btn"
+                  *ngIf="canCancel(shipment.status)"
+                  (click)="cancelShipment(shipment.id!); $event.stopPropagation()"
+                  [disabled]="cancellingId === shipment.id">
+            {{ cancellingId === shipment.id ? 'Cancelling...' : 'Cancel Shipment' }}
+          </button>
+        </div>
+
+        <div class="terminal-state" *ngIf="shipment.status === ShipmentStatus.DELIVERED">
+          Successfully delivered.
+        </div>
+        <div class="terminal-state returned" *ngIf="shipment.status === ShipmentStatus.RETURNED">
+          Shipment was returned.
+        </div>
+        <div class="terminal-state cancelled" *ngIf="shipment.status === ShipmentStatus.CANCELLED">
+          Shipment was cancelled.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoadingShipments">
+      <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+      <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+      <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+  
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoadingShipments && shipments.length === 0">
+    <div class="empty-icon">🚚</div>
+    <h3>No shipments yet</h3>
+    <p>Create a shipment for a paid order to get started.</p>
+  </div>
+</div>

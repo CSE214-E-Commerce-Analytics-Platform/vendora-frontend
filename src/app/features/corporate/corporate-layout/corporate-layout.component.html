@@ -1,0 +1,86 @@
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" [class.visible]="sidebarOpen()" (click)="closeSidebar()"></div>
+
+<div class="corporate-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" [class.open]="sidebarOpen()">
+
+    <button class="sidebar-close-btn" (click)="closeSidebar()" aria-label="Close menu">✕</button>
+
+    <div class="sidebar-header">
+      <div class="brand-icon">◈</div>
+      <div class="brand-text">
+        <span class="brand-name">Store Partner</span>
+        <span class="brand-sub">Corporate Portal</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/corporate/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+<a routerLink="/corporate/products" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">🛍️</span>
+        <span class="nav-label">Products</span>
+      </a>
+      <a routerLink="/corporate/inventory" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Inventory</span>
+      </a>
+      <a routerLink="/corporate/orders" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">🚚</span>
+        <span class="nav-label">Orders</span>
+      </a>
+      <a routerLink="/corporate/analytics" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Analytics</span>
+      </a>
+      <a routerLink="/corporate/reviews" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-label">Reviews</span>
+      </a>
+      <a routerLink="/corporate/shipments" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Shipments</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <header class="top-header">
+      <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="header-title">
+        <span class="header-accent-bar"></span>
+        <h3>Corporate Area</h3>
+      </div>
+
+      <div class="header-actions">
+        <span class="user-chip" *ngIf="corp_email_parsed">{{ corp_email_parsed }}</span>
+        <button class="theme-toggle-btn" (click)="themeService.toggle()"
+          [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <span *ngIf="themeService.isDark()">☀️</span>
+          <span *ngIf="!themeService.isDark()">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+
+  </main>
+</div>

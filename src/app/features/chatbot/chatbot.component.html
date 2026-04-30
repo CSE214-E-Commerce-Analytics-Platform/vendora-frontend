@@ -1,0 +1,316 @@
+<!-- ── Floating Action Button ── -->
+<button class="chat-fab" (click)="toggleChat()" [class.open]="isOpen" aria-label="Toggle AI Assistant">
+  @if (!isOpen) {
+    <span class="fab-icon">🤖</span>
+  } @else {
+    <span class="fab-icon">✕</span>
+  }
+</button>
+
+<!-- ── Chat History Sidebar ── -->
+<app-chat-history-sidebar
+  [isOpen]="isSidebarOpen"
+  (closed)="closeSidebar()"
+  (selected)="onHistorySelected($event)"
+  (newChat)="onNewChatFromSidebar()"
+></app-chat-history-sidebar>
+
+<!-- ── Chat Window ── -->
+@if (isOpen) {
+<div class="chat-window">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-info">
+      <button class="history-toggle" (click)="toggleSidebar()" title="Chat History">
+        ☰
+      </button>
+      <span class="ai-dot" [class.pulsing]="isTyping"></span>
+      <div class="header-text">
+        <h4>AI Data Assistant</h4>
+        <span class="header-sub">{{ headerSubtitle }}</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="guardrail-badge">🛡</span>
+      <button class="close-btn" (click)="closeChat()" aria-label="Close">✕</button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" #messagesContainer>
+
+    <!-- Welcome screen -->
+    @if (!hasMessages) {
+      <div class="welcome-wrap">
+        <div class="welcome-row">
+          <div class="ai-avatar">AI</div>
+          <div class="welcome-bubble">
+            Hello <strong>{{ displayName }}</strong>! Query your store data in natural language.
+          </div>
+        </div>
+        <div class="example-section">
+          <p class="example-label">Example questions:</p>
+          <div class="example-grid">
+            @for (q of exampleQuestions; track q) {
+              <button class="example-chip" (click)="useExample(q)">{{ q }}</button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Message list -->
+    @for (msg of messages; track msg.timestamp) {
+
+      <!-- USER -->
+      @if (msg.role === 'user') {
+        <div class="msg-row user-row">
+          <div class="user-bubble">{{ msg.content }}</div>
+        </div>
+      }
+
+      <!-- AI -->
+      @if (msg.role === 'ai') {
+        <div class="msg-row ai-row">
+          <div class="ai-avatar">AI</div>
+          <div class="ai-card" [id]="'ai-card-' + $index">
+
+            @if (msg.barItems && msg.barItems.length > 0) {
+              @if (msg.barTitle) {
+                <p class="bar-title">{{ msg.barTitle }}</p>
+              }
+              <div class="bar-list">
+                @for (item of msg.barItems; track item.label) {
+                  <div class="bar-row">
+                    <span class="bar-label">{{ item.label }}</span>
+                    <div class="bar-track">
+                      <div class="bar-fill" [style.width.%]="item.pct"></div>
+                    </div>
+                    <span class="bar-val">{{ item.value | number }} {{ item.unit }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="ai-text" [innerHTML]="formatAiContent(msg.content)"></div>
+            }
+
+            <!-- Export Dropdown — below chart -->
+            @if (msg.chartUrl || (msg.barItems && msg.barItems.length > 0)) {
+              <div class="export-wrap">
+                <button class="export-trigger" (click)="toggleExportMenu($index); $event.stopPropagation()" title="Export chart">
+                  ⤓
+                </button>
+                @if (exportOpenIdx === $index) {
+                  <div class="export-dropdown" (click)="$event.stopPropagation()">
+                    @if (msg.barItems && msg.barItems.length > 0) {
+                      <button class="export-item excel" (click)="exportExcel(msg, $index)">
+                        <span>📋</span> Excel (.xlsx)
+                      </button>
+                      <button class="export-item csv" (click)="exportCsv(msg, $index)">
+                        <span>📄</span> CSV (.csv)
+                      </button>
+                    }
+                    <button class="export-item pdf" (click)="exportPdf(msg, $index)">
+                      <span>📊</span> PDF (chart image)
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- SQL Query Block -->
+            @if (msg.sqlQuery && userRole === 'ADMIN') {
+              <div class="sql-block">
+                <div class="sql-block-header">
+                  <span class="sql-icon">⚡</span>
+                  <span class="sql-label">SQL Query</span>
+                </div>
+                <pre class="sql-code">{{ msg.sqlQuery }}</pre>
+              </div>
+            }
+
+            <!-- Agent Trace Block -->
+            @if (msg.trace && msg.trace.length > 0 && userRole === 'ADMIN') {
+              <div class="trace-block">
+                <div class="trace-header">
+                  <span>🤖 Agent Execution Trace</span>
+                </div>
+                <div class="trace-path">
+                  @for (agent of msg.trace; track $index) {
+                    <span class="trace-node">{{ agent }}</span>
+                    @if (!$last) { <span class="trace-arrow">→</span> }
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Follow-up Suggestions -->
+            @if (msg.suggestions && msg.suggestions.length > 0) {
+              <div class="suggestions-block">
+                @for (sug of msg.suggestions; track $index) {
+                  <button class="suggestion-chip" (click)="askSuggestion(sug)">
+                    <span>💬</span> {{ sug }}
+                  </button>
+                }
+                <!-- Return to start menu -->
+                <button class="suggestion-chip menu-chip" (click)="clearChat()" title="Clear chat history and go back to start">
+                  <span>🏠</span> Return to Start Menu
+                </button>
+              </div>
+            }
+
+            <!-- Footer: row count + timing -->
+            @if (msg.rowCount || msg.queryTimeMs) {
+              <div class="row-footer">
+                @if (msg.rowCount) { <span>{{ msg.rowCount }} rows returned</span> }
+                @if (msg.queryTimeMs) { <span>· {{ formatQueryTime(msg.queryTimeMs) }}</span> }
+              </div>
+            }
+
+          </div>
+        </div>
+      }
+
+      <!-- GUARDRAIL -->
+      @if (msg.role === 'guardrail') {
+        <div class="msg-row gr-row">
+          <div class="gr-avatar" [class.rate]="msg.guardrailType === 'RATE_LIMIT'">
+            {{ msg.guardrailType === 'RATE_LIMIT' ? '⏱' : 'GR' }}
+          </div>
+          <div class="gr-content">
+
+            <!-- Header -->
+            <p class="gr-header-text">{{ guardrailHeaderText(msg.guardrailType) }}</p>
+
+            <!-- Agent label badge -->
+            <span [class]="guardrailBadgeClass(msg.guardrailType)">
+              🛡 {{ guardrailLabel(msg.guardrailType) }}
+            </span>
+
+            @if (msg.guardrailDetail && userRole === 'ADMIN') {
+              <!-- Detail card -->
+              <div class="gr-detail-card">
+                <p class="gr-detail-title">
+                  <span class="gr-warn-icon">⚠</span>
+                  {{ msg.guardrailDetail.detectionType }} Detected
+                </p>
+                <table class="gr-detail-table">
+                  <tr>
+                    <td class="gr-dt-key">Detection Type</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.detectionType }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Trigger</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.trigger }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Target</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.target }}</td>
+                  </tr>
+                  <tr>
+                    <td class="gr-dt-key">Action</td>
+                    <td class="gr-dt-val">{{ msg.guardrailDetail.action }}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Blocked SQL (crossed out) -->
+              @if (msg.guardrailDetail.blockedSql) {
+                <div class="gr-blocked-sql">
+                  <s>{{ msg.guardrailDetail.blockedSql }}</s>
+                </div>
+              }
+
+              <!-- Suggestion (green box) -->
+              @if (msg.guardrailDetail.suggestion) {
+                <div class="gr-suggestion">
+                  <strong>Instead, I can do this:</strong>
+                  <p>{{ msg.guardrailDetail.suggestion }}</p>
+                </div>
+              }
+
+              <!-- Bottom log badge -->
+              @if (msg.guardrailDetail.badge) {
+                <span class="gr-log-badge">{{ msg.guardrailDetail.badge }}</span>
+              }
+              
+              <!-- Agent Trace Block (for Guardrail) -->
+              @if (msg.trace && msg.trace.length > 0) {
+                <div class="trace-block" style="background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.2);">
+                  <div class="trace-header" style="color: #ef4444;">
+                    <span>🤖 Agent Execution Trace</span>
+                  </div>
+                  <div class="trace-path">
+                    @for (agent of msg.trace; track $index) {
+                      <span class="trace-node" style="color: #ef4444; border-color: #fca5a5;">{{ agent }}</span>
+                      @if (!$last) { <span class="trace-arrow">→</span> }
+                    }
+                  </div>
+                </div>
+              }
+            }
+
+          </div>
+        </div>
+      }
+
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping) {
+      <div class="msg-row ai-row">
+        <div class="ai-avatar">AI</div>
+        @if (userRole === 'ADMIN') {
+          <!-- Admin: Live agent stream -->
+          <div class="typing-bubble stream-bubble">
+            <span class="stream-icon">{{ streamStep?.icon }}</span>
+            <span class="stream-text">{{ streamStep?.label }}</span>
+            <span class="stream-cursor">▌</span>
+          </div>
+        } @else {
+          <!-- Others: Normal dots -->
+          <div class="typing-bubble">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- Export Toast Notification -->
+  @if (exportToast) {
+    <div class="export-toast">
+      {{ exportToast }}
+    </div>
+  }
+
+  <!-- Input -->
+  <div class="chat-input">
+    <textarea
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      (input)="autoResize($event)"
+      placeholder="Type your question..."
+      [disabled]="isTyping"
+      maxlength="500"
+      rows="1">
+    </textarea>
+    <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
+      ➤
+    </button>
+  </div>
+
+</div>
+}
+
+<!-- Graph expand overlay -->
+@if (isGraphExpanded) {
+<div class="graph-overlay" (click)="closeExpandedGraph()">
+  <div class="graph-modal" (click)="$event.stopPropagation()">
+    <button class="close-graph-btn" (click)="closeExpandedGraph()">✕</button>
+    <img [src]="expandedGraphSrc" alt="Graph" class="expanded-img">
+  </div>
+</div>
+}

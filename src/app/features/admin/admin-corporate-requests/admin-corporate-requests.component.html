@@ -1,0 +1,188 @@
+<div class="corp-requests-container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>Corporate Upgrade Requests</h2>
+        <p>Review and approve/reject individual users applying for corporate seller status.</p>
+    </div>
+
+    <!-- Success Banner -->
+    <div *ngIf="successMessage" class="success-banner">
+        ✅ {{ successMessage }}
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage && !isLoading" class="error-banner">
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+
+        <!-- Status Filter -->
+        <div class="filter-group">
+            <label>Filter by Status</label>
+            <div class="tab-buttons">
+                <button class="tab-btn" [ngClass]="{'active': selectedStatus === 'PENDING'}"
+                    (click)="selectedStatus = 'PENDING'; loadByStatus()">
+                    ⏳ Pending
+                </button>
+                <button class="tab-btn" [ngClass]="{'active': selectedStatus === 'APPROVED'}"
+                    (click)="selectedStatus = 'APPROVED'; loadByStatus()">
+                    ✅ Approved
+                </button>
+                <button class="tab-btn" [ngClass]="{'active': selectedStatus === 'REJECTED'}"
+                    (click)="selectedStatus = 'REJECTED'; loadByStatus()">
+                    ❌ Rejected
+                </button>
+            </div>
+        </div>
+
+        <!-- Email Search -->
+        <div class="search-group">
+            <label>Search by Email</label>
+            <div class="search-input-row">
+                <input type="email" class="search-input" placeholder="user@example.com" [(ngModel)]="searchEmail"
+                    (keyup.enter)="searchByEmail()" />
+                <button class="search-btn" (click)="searchByEmail()" [disabled]="isSearching || !searchEmail.trim()">
+                    {{ isSearching ? '...' : '🔍' }}
+                </button>
+                <button class="clear-btn" *ngIf="searchEmail" (click)="clearSearch()">✕</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading requests...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && requests.length === 0" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No <strong>{{ selectedStatus | lowercase }}</strong> requests found.</p>
+    </div>
+
+    <!-- Requests List -->
+    <div *ngIf="!isLoading && requests.length > 0" class="requests-grid">
+        <div class="request-card" *ngFor="let req of requests">
+
+            <div class="card-header">
+                <div class="request-id">#{{ req.id }}</div>
+                <span class="status-badge" [ngClass]="getStatusClass(req.status)">
+                    {{ getStatusIcon(req.status) }} {{ req.status }}
+                </span>
+            </div>
+
+            <div class="card-body">
+                <div class="info-row">
+                    <span class="info-label">👤 User ID</span>
+                    <span class="info-value">{{ req.userId }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">🏢 Company</span>
+                    <span class="info-value">{{ req.companyName }}</span>
+                </div>
+                <div class="info-row reason-row">
+                    <span class="info-label">📝 Reason</span>
+                    <span class="info-value reason-text">{{ req.reason }}</span>
+                </div>
+                <div class="info-row" *ngIf="req.adminNote">
+                    <span class="info-label">💬 Admin Note</span>
+                    <span class="info-value admin-note-text">{{ req.adminNote }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Applied</span>
+                    <span class="info-value">{{ req.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button class="review-btn" *ngIf="req.status === 'PENDING'" (click)="openReviewModal(req)">
+                    🔍 Review
+                </button>
+                <div class="reviewed-label" *ngIf="req.status !== 'PENDING'">
+                    Reviewed on {{ req.updatedAt | date:'dd MMM yyyy' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="totalPages >= 0 && !isLoading && !isSearching">
+        <button class="btn-page" (click)="prevPage()" [disabled]="pageNumber === 0">← Previous</button>
+        <span class="page-info">Page {{ pageNumber + 1 }} of {{ totalPages }}</span>
+        <button class="btn-page" (click)="nextPage()" [disabled]="pageNumber >= totalPages - 1">Next →</button>
+    
+        <div class="jump-to-page">
+            <input type="number" #pageInput min="1" [max]="totalPages" placeholder="Go to..." (keyup.enter)="goToPage(pageInput.value)" class="page-input">
+            <button class="btn-page" (click)="goToPage(pageInput.value)">Go</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== Review Modal ===== -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h3>Review Request <span class="modal-id">#{{ selectedRequest?.id }}</span></h3>
+            <button class="modal-close" (click)="closeReviewModal()">✕</button>
+        </div>
+
+        <!-- Summary -->
+        <div class="modal-summary">
+            <div class="modal-detail"><strong>Company:</strong> {{ selectedRequest?.companyName }}</div>
+            <div class="modal-detail"><strong>Reason:</strong> {{ selectedRequest?.reason }}</div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="reviewError" class="error-banner" style="margin-bottom: 1rem;">
+            ⚠️ {{ reviewError }}
+        </div>
+
+        <!-- Decision -->
+        <div class="form-group">
+            <label>Decision</label>
+            <div class="decision-buttons">
+                <button class="decision-btn approve-btn" [ngClass]="{'selected': reviewDecision === 'APPROVED'}"
+                    (click)="reviewDecision = 'APPROVED'">
+                    ✅ Approve
+                </button>
+                <button class="decision-btn reject-btn" [ngClass]="{'selected': reviewDecision === 'REJECTED'}"
+                    (click)="reviewDecision = 'REJECTED'">
+                    ❌ Reject
+                </button>
+            </div>
+            <p class="decision-hint" *ngIf="reviewDecision === 'APPROVED'">
+                ✅ Approving will change the user's role to <strong>CORPORATE</strong> and automatically create their
+                store named "<em>{{ selectedRequest?.companyName }}</em>".
+            </p>
+            <p class="decision-hint rejected-hint" *ngIf="reviewDecision === 'REJECTED'">
+                ❌ The user will remain as INDIVIDUAL with no changes made.
+            </p>
+        </div>
+
+        <!-- Admin Note -->
+        <div class="form-group">
+            <label>Admin Note <span class="optional">(optional)</span></label>
+            <textarea class="form-control" placeholder="Leave a message for the user..." [(ngModel)]="adminNote"
+                rows="3" maxlength="500"></textarea>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="modal-actions">
+            <button class="modal-cancel-btn" (click)="closeReviewModal()" [disabled]="isReviewing">Cancel</button>
+            <button class="modal-submit-btn" [ngClass]="reviewDecision === 'APPROVED' ? 'btn-approve' : 'btn-reject'"
+                (click)="submitReview()" [disabled]="isReviewing">
+                <span *ngIf="!isReviewing">
+                    {{ reviewDecision === 'APPROVED' ? '✅ Confirm Approval' : '❌ Confirm Rejection' }}
+                </span>
+                <span *ngIf="isReviewing">Processing...</span>
+            </button>
+        </div>
+    </div>
+</div>

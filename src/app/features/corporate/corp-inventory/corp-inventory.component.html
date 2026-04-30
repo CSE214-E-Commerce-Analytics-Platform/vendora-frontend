@@ -1,0 +1,122 @@
+<div class="inventory-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Inventory Management</h2>
+      <p class="header-sub">Monitor and update your product stock levels.</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row" *ngIf="!isLoading && products.length > 0">
+    <div class="stat-card">
+      <span class="stat-icon">📦</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalProducts }}</span>
+        <span class="stat-label">Total Products</span>
+      </div>
+    </div>
+    <div class="stat-card warning">
+      <span class="stat-icon">⚠️</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ lowStockCount }}</span>
+        <span class="stat-label">Low Stock (&lt;10)</span>
+      </div>
+    </div>
+    <div class="stat-card danger">
+      <span class="stat-icon">🚫</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ outOfStockCount }}</span>
+        <span class="stat-label">Out of Stock</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar" *ngIf="!isLoading && products.length > 0">
+    <div class="search-box">
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Search by product name or SKU..." />
+    </div>
+    <div class="filter-tabs">
+      <button [class.active]="stockFilter === 'ALL'" (click)="stockFilter = 'ALL'; applyFilters()">All</button>
+      <button [class.active]="stockFilter === 'LOW'" (click)="stockFilter = 'LOW'; applyFilters()">Low Stock</button>
+      <button [class.active]="stockFilter === 'OUT'" (click)="stockFilter = 'OUT'; applyFilters()">Out of Stock</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading inventory...</p>
+  </div>
+
+  <!-- Inventory Table -->
+  <div class="table-wrapper" *ngIf="!isLoading && filteredProducts.length > 0">
+    <table class="inventory-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>SKU</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of filteredProducts" [class.highlight-row]="editingProductId === product.id">
+          <td class="product-cell">
+            <img [src]="getImageUrl(product.imageUrl)" alt="{{ product.name }}" class="product-thumb" />
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-category">{{ product.categoryName || 'Uncategorized' }}</span>
+            </div>
+          </td>
+          <td class="sku-cell">{{ product.sku }}</td>
+          <td class="price-cell">{{ product.unitPrice | currency:'TRY':'₺':'1.2-2' }}</td>
+          <td class="stock-cell">
+            <ng-container *ngIf="editingProductId !== product.id">
+              <span class="stock-value" [ngClass]="getStockClass(product.stockQuantity)">
+                {{ product.stockQuantity }}
+              </span>
+            </ng-container>
+            <ng-container *ngIf="editingProductId === product.id">
+              <input type="number" class="stock-input" [(ngModel)]="editStockValue" min="0" />
+            </ng-container>
+          </td>
+          <td>
+            <span class="stock-badge" [ngClass]="getStockClass(product.stockQuantity)">
+              <span *ngIf="product.stockQuantity === 0">Out of Stock</span>
+              <span *ngIf="product.stockQuantity > 0 && product.stockQuantity <= 5">🔥 Critical!</span>
+              <span *ngIf="product.stockQuantity > 5 && product.stockQuantity < 10">Low Stock</span>
+              <span *ngIf="product.stockQuantity >= 10">In Stock</span>
+            </span>
+          </td>
+          <td class="actions-cell">
+            <ng-container *ngIf="editingProductId !== product.id">
+              <button class="action-btn edit" (click)="startEdit(product)">Update Stock</button>
+            </ng-container>
+            <ng-container *ngIf="editingProductId === product.id">
+              <button class="action-btn save" (click)="saveStock(product)" [disabled]="isSaving">
+                {{ isSaving ? 'Saving...' : 'Save' }}
+              </button>
+              <button class="action-btn cancel" (click)="cancelEdit()">Cancel</button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty States -->
+  <div class="empty-state" *ngIf="!isLoading && products.length === 0">
+    <div class="empty-icon">📦</div>
+    <h3>No Products Found</h3>
+    <p>This store doesn't have any products yet. Add products from the Products page.</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && products.length > 0 && filteredProducts.length === 0">
+    <div class="empty-icon">🔍</div>
+    <h3>No Results</h3>
+    <p>No products match your current filter or search.</p>
+  </div>
+</div>

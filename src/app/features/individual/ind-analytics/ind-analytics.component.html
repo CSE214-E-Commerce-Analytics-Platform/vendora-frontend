@@ -1,0 +1,100 @@
+<div class="analytics-container">
+  <div class="page-header">
+    <h2>Spending Analytics</h2>
+    <p class="header-sub">Insights into your purchasing habits and spending patterns.</p>
+  </div>
+
+  <div class="loader" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Crunching your numbers...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalSpent | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📦</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalOrders }}</span>
+          <span class="stat-label">Orders</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📊</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ avgOrderValue | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Avg. Order</span>
+        </div>
+      </div>
+      <div class="stat-card highlight">
+        <span class="stat-icon">🔥</span>
+        <div class="stat-info">
+          <span class="stat-value">{{ last30DaysSpent | currency:'TRY':'₺':'1.0-0' }}</span>
+          <span class="stat-label">Last 30 Days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row" *ngIf="orders.length > 0">
+      <div class="chart-card wide">
+        <h3 class="chart-title">Monthly Spending Trend</h3>
+        <div class="chart-wrapper">
+          <canvas #monthlyChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row" *ngIf="orders.length > 0">
+      <div class="chart-card">
+        <h3 class="chart-title">Spending by Store</h3>
+        <div class="chart-wrapper doughnut">
+          <canvas #categoryChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Top Stores</h3>
+        <div class="chart-wrapper">
+          <canvas #storeChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Stores Table -->
+    <div class="table-card" *ngIf="storeData.length > 0">
+      <h3 class="chart-title">Store Breakdown</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Store</th>
+            <th>Orders</th>
+            <th>Total Spent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let store of storeData; let i = index">
+            <td class="rank">{{ i + 1 }}</td>
+            <td class="store-name">{{ store.name }}</td>
+            <td>{{ store.count }}</td>
+            <td class="amount">{{ store.spent | currency:'TRY':'₺':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="orders.length === 0">
+      <div class="empty-icon">📊</div>
+      <h3>No Data Yet</h3>
+      <p>Once you have delivered orders, your spending analytics will appear here.</p>
+    </div>
+  </ng-container>
+</div>

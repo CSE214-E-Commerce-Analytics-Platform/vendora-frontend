@@ -1,0 +1,102 @@
+/* ================================================================
+   ADMIN STORES — Premium SaaS Dark
+   ================================================================ */
+.admin-stores-container {
+  padding: 0; max-width: 1400px; margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
+  animation: fadeSlideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.page-header p  { color: var(--text-secondary); font-size: 0.875rem; margin: 0; }
+
+/* States */
+.loading-state, .error-message, .empty-state {
+  text-align: center; padding: 48px 24px;
+  background: var(--card-bg); border-radius: 16px;
+  border: 1px solid var(--card-border); box-shadow: var(--card-shadow);
+  color: var(--text-secondary);
+}
+
+.spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--admin-accent);
+  border-radius: 50%; width: 36px; height: 36px;
+  animation: spin 0.9s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Grid */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+/* Card */
+.store-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  border-top: 3px solid var(--admin-accent);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.store-card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+
+[data-theme="dark"] .store-card:hover {
+  box-shadow: 0 0 28px rgba(167,139,250,0.12), 0 10px 32px rgba(0,0,0,0.5);
+}
+
+.store-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 18px 10px;
+}
+
+.store-avatar {
+  width: 46px; height: 46px;
+  background: var(--btn-ghost-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem;
+}
+
+.status-badge {
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+}
+
+.status-badge.active   { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+.status-badge.inactive { background: rgba(245,158,11,0.12);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+
+.store-details { flex-grow: 1; padding: 0 18px 14px; }
+
+.store-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 5px 0; transition: color 0.2s; }
+.store-name:hover { color: var(--admin-accent); cursor: pointer; }
+
+.store-joined, .store-owner { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 3px 0; }
+
+.store-actions { padding: 10px 18px 16px; border-top: 1px solid var(--card-border); }
+
+.delete-btn {
+  width: 100%; padding: 10px;
+  background: rgba(239,68,68,0.1);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: var(--radius-btn); font-weight: 600; font-size: 0.875rem;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.delete-btn:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.35); }

@@ -1,0 +1,105 @@
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" [class.visible]="sidebarOpen()" (click)="closeSidebar()"></div>
+
+<div class="individual-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" [class.open]="sidebarOpen()">
+
+    <button class="sidebar-close-btn" (click)="closeSidebar()" aria-label="Close menu">✕</button>
+
+    <div class="sidebar-header">
+      <a routerLink="/individual/products" class="logo-link" (click)="closeSidebar()">
+        <img src="assets/icons/web-icon.webp" alt="Platform Logo" class="sidebar-logo">
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/individual/products" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Browse Products</span>
+      </a>
+      <a routerLink="/individual/stores" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">🏪</span>
+        <span class="nav-label">Browse Stores</span>
+      </a>
+      <a routerLink="/individual/cart" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-label">My Cart</span>
+      </a>
+      <a routerLink="/individual/orders" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Active Orders</span>
+      </a>
+      <a routerLink="/individual/history" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Purchase History</span>
+      </a>
+      <a routerLink="/individual/reviews" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-label">My Reviews</span>
+      </a>
+<a routerLink="/individual/analytics" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Spending Analytics</span>
+      </a>
+      <a routerLink="/individual/profile" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Profile Settings</span>
+      </a>
+      <a routerLink="/individual/addresses" routerLinkActive="active" (click)="closeSidebar()">
+        <span class="nav-icon">📍</span>
+        <span class="nav-label">My Addresses</span>
+      </a>
+      <a routerLink="/individual/become-corporate" routerLinkActive="active" class="upgrade-link" (click)="closeSidebar()">
+        <span class="nav-icon">🏢</span>
+        <span class="nav-label">Become Corporate</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <header class="top-header">
+      <button class="hamburger-btn" (click)="toggleSidebar()" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="header-title">
+        <span class="header-accent-bar"></span>
+        <h3>Customer Portal</h3>
+      </div>
+
+      <div class="header-actions">
+        <span class="user-chip" *ngIf="ind_email_parsed">{{ ind_email_parsed }}</span>
+        
+        <a routerLink="/individual/cart" class="cart-header-btn">
+          🛒
+          <span class="cart-badge" *ngIf="(cartService.currentCart$ | async)?.totalItems as count">{{ count }}</span>
+        </a>
+
+        <button class="theme-toggle-btn" (click)="themeService.toggle()" [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <span *ngIf="themeService.isDark()">☀️</span>
+          <span *ngIf="!themeService.isDark()">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+
+  </main>
+
+  <div *ngIf="toastMessage" class="toast-notification" [ngClass]="toastMessage.type">
+    {{ toastMessage.message }}
+  </div>
+</div>
