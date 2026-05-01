@@ -170,6 +170,7 @@
   position: sticky; top: 0; z-index: 50;
   transition: background 0.35s ease, border-color 0.35s ease;
   flex-shrink: 0;
+  position: relative;
 }
 
 .hamburger-btn {
@@ -181,6 +182,9 @@
   border-radius: 8px; cursor: pointer; padding: 8px;
   flex-shrink: 0; transition: all 0.2s;
 }
+
+/* Mobile brand — hidden on desktop, shown on mobile via media query */
+.mobile-brand { display: none; }
 .hamburger-btn span { display: block; height: 2px; background: var(--text-secondary); border-radius: 2px; }
 .hamburger-btn:hover { background: var(--ind-accent-hover); }
 .hamburger-btn:hover span { background: var(--ind-accent); }
@@ -308,6 +312,37 @@
   .content { padding: 16px; }
   .top-header { padding: 0 16px; }
   .user-chip { display: none; }
+
+  /* Mobile brand */
+  .mobile-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .mobile-brand-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .mobile-brand-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* Hide desktop header-title text on mobile to avoid overlap */
+  .header-title { display: none; }
 }
 
 /* ── Toast Notification ── */
