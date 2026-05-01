@@ -5,8 +5,8 @@
     <div class="auth-brand-content">
 
       <div class="auth-brand-logo">
-        <div class="auth-brand-icon">🛒</div>
-        <span class="auth-brand-name">E-Commerce Platform</span>
+        <img src="favicon.png" alt="Vendora" class="auth-brand-icon">
+        <span class="auth-brand-name">Vendora</span>
       </div>
 
       <h1>Join thousands of<br><span>sellers & shoppers.</span></h1>
@@ -65,7 +65,7 @@
             <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
               placeholder="Min 6 characters"
               [class.error-border]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
-            <span class="eye-icon" (mouseenter)="showPassword = true" (mouseleave)="showPassword = false">
+            <span class="eye-icon" (click)="showPassword = !showPassword">
               @if (showPassword) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Hide</title><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               } @else {
@@ -84,7 +84,7 @@
             <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
               formControlName="confirmPassword" placeholder="Re-enter your password"
               [class.error-border]="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid">
-            <span class="eye-icon" (mouseenter)="showConfirmPassword = true" (mouseleave)="showConfirmPassword = false">
+            <span class="eye-icon" (click)="showConfirmPassword = !showConfirmPassword">
               @if (showConfirmPassword) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><title>Hide</title><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               } @else {
@@ -139,7 +139,7 @@
 
       <div class="register-footer">
         <p>Already have an account? <a routerLink="/login" class="link">Sign In</a></p>
-        <small>© 2026 E-Commerce AI Management System</small>
+        <small>© 2026 Vendora</small>
       </div>
     }
 

@@ -14,7 +14,7 @@ export class AdminSettingsComponent {
   private toastService = inject(ToastService);
 
   settings = {
-    platformName: 'E-Commerce Analytics Platform',
+    platformName: 'Vendora',
     contactEmail: 'admin@datapulse.com',
     defaultTheme: 'light',
     enableNotifications: true,

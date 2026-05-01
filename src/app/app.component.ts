@@ -12,7 +12,7 @@ import { filter } from 'rxjs';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'e-commerce-frontend';
+  title = 'vendora';
   showNavbar = false;
   showChatbot = false;
 
