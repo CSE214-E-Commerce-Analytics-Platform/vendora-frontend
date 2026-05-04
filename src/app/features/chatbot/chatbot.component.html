@@ -7,17 +7,17 @@
   }
 </button>
 
-<!-- ── Chat History Sidebar ── -->
-<app-chat-history-sidebar
-  [isOpen]="isSidebarOpen"
-  (closed)="closeSidebar()"
-  (selected)="onHistorySelected($event)"
-  (newChat)="onNewChatFromSidebar()"
-></app-chat-history-sidebar>
-
 <!-- ── Chat Window ── -->
 @if (isOpen) {
 <div class="chat-window">
+
+  <!-- History Sidebar (scoped inside chat window) -->
+  <app-chat-history-sidebar
+    [isOpen]="isSidebarOpen"
+    (closed)="closeSidebar()"
+    (selected)="onHistorySelected($event)"
+    (newChat)="onNewChatFromSidebar()"
+  ></app-chat-history-sidebar>
 
   <!-- Header -->
   <div class="chat-header">

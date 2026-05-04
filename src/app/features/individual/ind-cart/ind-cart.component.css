@@ -551,4 +551,13 @@
 .addr-title { font-weight: 600; color: var(--text-primary); }
 .addr-full { color: var(--text-secondary); font-size: 0.9rem; }
 .addr-zip { color: var(--text-muted); font-size: 0.85rem; font-family: monospace; }
+
+@media (max-width: 480px) {
+  .cart-header h2 { font-size: 1.4rem; }
+  .cart-item-card { flex-wrap: wrap; }
+  .item-image { width: 64px; height: 64px; }
+  .item-actions { width: 100%; justify-content: space-between; gap: 12px; }
+  .total-line-price { min-width: auto; }
+  .remove-btn { margin-left: auto; }
+}
 

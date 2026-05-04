@@ -361,3 +361,20 @@
 .modal-body {
   padding: 24px;
 }
+
+@media (max-width: 768px) {
+  .order-detail-container { padding: 16px; }
+  .header-main { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .header-meta { flex-direction: column; gap: 12px; }
+  .package-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .package-tracking { padding: 12px 16px; }
+  .package-items { padding: 16px; }
+  .item-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .item-actions { width: 100%; justify-content: space-between; }
+  .track-row { gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .header-main h2 { font-size: 1.2rem; }
+  .meta-value { font-size: 0.95rem; }
+}

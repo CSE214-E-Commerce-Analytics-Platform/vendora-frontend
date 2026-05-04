@@ -192,3 +192,8 @@
 
 .visit-btn span { transition: transform 0.2s; }
 .visit-btn:hover span { transform: translateX(4px); }
+
+@media (max-width: 480px) {
+  .store-grid { grid-template-columns: 1fr; }
+  .page-header h2 { font-size: 1.3rem; }
+}

@@ -171,6 +171,12 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+@media (max-width: 600px) {
+  .form-row { flex-direction: column; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .add-btn { width: 100%; justify-content: center; }
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;

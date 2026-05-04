@@ -233,7 +233,16 @@
 /* Responsive */
 @media (max-width: 768px) {
   .history-table th:nth-child(3),
-  .history-table td:nth-child(3) {
-    display: none;
-  }
+  .history-table td:nth-child(3) { display: none; }
+  .filter-tabs { flex-wrap: wrap; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .page-header h2 { font-size: 1.4rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .history-table-wrapper { overflow-x: auto; }
+  .history-table { min-width: 420px; }
+  .filters-bar { flex-direction: column; align-items: stretch; }
+  .search-box { min-width: 0; }
 }

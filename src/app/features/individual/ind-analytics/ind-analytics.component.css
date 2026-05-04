@@ -138,4 +138,12 @@
 
 @media (max-width: 768px) {
   .charts-row { grid-template-columns: 1fr; }
+  .page-header h2 { font-size: 1.4rem; }
+  .table-card { overflow-x: auto; }
+  .data-table { min-width: 480px; }
+}
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .chart-wrapper { height: 220px; }
 }

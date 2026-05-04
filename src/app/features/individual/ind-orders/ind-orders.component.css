@@ -58,6 +58,15 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
   }
+  .orders-header h2 { font-size: 1.4rem; }
+  .suborders .suborder-line { grid-template-columns: 1fr; gap: 6px; }
+  .shipment-track-row { gap: 12px; }
+  .order-actions-group { flex-direction: column; }
+  .view-details-btn, .action-btn { width: 100%; text-align: center; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .order-summary { grid-template-columns: 1fr; }
 }
 
 .order-info-group {
