@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { DtoCart, DtoCartItemRequest } from '../../shared/models/cart';
 import { ApiResponse } from '../../shared/models/api-response';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
@@ -26,8 +26,8 @@ export class CartService {
         if (res && res.payload) {
           this.currentCartSubject.next(res.payload);
         } else {
-             // Handle case where cart might be empty/null from backend
-             this.currentCartSubject.next(null);
+          // Handle case where cart might be empty/null from backend
+          this.currentCartSubject.next(null);
         }
       })
     );

@@ -10,7 +10,7 @@ import { AddressService } from '../../../core/services/address.service';
 import { DtoAddress } from '../../../shared/models/address';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 declare var Stripe: any;
 
@@ -29,7 +29,7 @@ export class IndCartComponent implements OnInit {
 
   showClearModal = false;
   showCheckoutModal = false;
-  
+
   // Address selection state
   addresses: DtoAddress[] = [];
   selectedAddressId: number | null = null;

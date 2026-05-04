@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoAuditLog } from '../../shared/models/audit-log';
 import { RestPageableEntity, RestPageableRequest } from '../../shared/models/pageable';
@@ -18,7 +18,7 @@ export class AdminAuditService {
         let params = new HttpParams()
             .set('pageNumber', request.pageNumber.toString())
             .set('pageSize', request.pageSize.toString());
-            
+
         if (request.columnName) {
             params = params.set('columnName', request.columnName);
         }

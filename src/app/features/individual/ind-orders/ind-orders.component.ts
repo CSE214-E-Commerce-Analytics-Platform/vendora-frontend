@@ -7,7 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 declare var Stripe: any;
 

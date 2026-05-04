@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoCustomerProfile, DtoCustomerProfileRequest } from '../../shared/models/customer-profile';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CustomerProfileService {

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthResponse } from '../../shared/models/auth-response';
 import { tap, map } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 
 @Injectable({

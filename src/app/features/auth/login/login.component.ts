@@ -3,7 +3,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { extractErrorMessage } from '../../../core/utils/error.util';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',

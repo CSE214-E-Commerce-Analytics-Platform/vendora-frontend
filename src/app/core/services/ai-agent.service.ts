@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 export interface AiResponse {
-    answer:          string;
-    sqlQuery:        string | null;
-    intent:          string | null;
+    answer: string;
+    sqlQuery: string | null;
+    intent: string | null;
     guardrailReason: string | null;
-    trace?:          string[];
-    suggestions?:    string[];
+    trace?: string[];
+    suggestions?: string[];
 }
 
 @Injectable({
@@ -89,12 +89,12 @@ export class AiAgentService {
      */
     askQuestion(question: string, role: string): Observable<AiResponse> {
         let endpointSuffix = '';
-        if (role === 'INDIVIDUAL')     endpointSuffix = '/individual';
+        if (role === 'INDIVIDUAL') endpointSuffix = '/individual';
         else if (role === 'CORPORATE') endpointSuffix = '/corporate';
-        else if (role === 'ADMIN')     endpointSuffix = '/admin';
+        else if (role === 'ADMIN') endpointSuffix = '/admin';
         else throw new Error('Geçersiz veya eksik kullanıcı rolü.');
 
-        const url  = `${this.baseAiUrl}${endpointSuffix}`;
+        const url = `${this.baseAiUrl}${endpointSuffix}`;
         const body = { question };
 
         return this.http.post(url, body, { responseType: 'text' }).pipe(
@@ -102,7 +102,7 @@ export class AiAgentService {
                 try {
                     // Spring Boot wraps as { payload: { answer, sql_query, intent, guardrail_reason } }
                     const parsed = JSON.parse(raw);
-                    
+
                     let answerText = raw;
                     if (parsed.payload && typeof parsed.payload === 'object') {
                         answerText = parsed.payload.answer ?? parsed.payload.final_answer ?? '';
@@ -115,11 +115,11 @@ export class AiAgentService {
                     const answer = this.sanitizeResponse(answerText);
                     return {
                         answer,
-                        sqlQuery:        parsed.payload?.sql_query        ?? parsed.sqlQuery        ?? parsed.sql_query        ?? null,
-                        intent:          parsed.payload?.intent           ?? parsed.intent          ?? null,
+                        sqlQuery: parsed.payload?.sql_query ?? parsed.sqlQuery ?? parsed.sql_query ?? null,
+                        intent: parsed.payload?.intent ?? parsed.intent ?? null,
                         guardrailReason: parsed.payload?.guardrail_reason ?? parsed.guardrailReason ?? parsed.guardrail_reason ?? null,
-                        trace:           parsed.payload?.trace            ?? parsed.trace           ?? [],
-                        suggestions:     parsed.payload?.suggestions      ?? parsed.suggestions     ?? [],
+                        trace: parsed.payload?.trace ?? parsed.trace ?? [],
+                        suggestions: parsed.payload?.suggestions ?? parsed.suggestions ?? [],
                     } as AiResponse;
                 } catch {
                     return {

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoPayment, DtoPaymentRequest, PaymentStatus } from '../../shared/models/payment';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

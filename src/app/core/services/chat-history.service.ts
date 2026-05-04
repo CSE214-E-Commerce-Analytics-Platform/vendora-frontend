@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 export interface ChatHistoryItem {
     id: number;
@@ -30,7 +30,7 @@ export class ChatHistoryService {
 
     private readonly baseUrl = `${environment.baseUrl}/chat-histories`;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     getAll(): Observable<ChatHistoryItem[]> {
         return this.http.get<ApiResponse<PageablePayload<ChatHistoryItem>>>(

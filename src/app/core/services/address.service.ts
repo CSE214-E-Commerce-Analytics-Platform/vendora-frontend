@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { ApiResponse } from '../../shared/models/api-response';
 import { DtoAddress, DtoAddressRequest } from '../../shared/models/address';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { RestPageableEntity, RestPageableRequest, buildPageParams } from '../../shared/models/pageable';
 
 @Injectable({
