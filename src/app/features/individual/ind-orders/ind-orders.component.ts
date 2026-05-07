@@ -1,12 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DtoOrder, OrderStatus } from '../../../shared/models/order';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, switchMap, takeWhile } from 'rxjs/operators';
+import { of, interval, Subscription } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 declare var Stripe: any;
@@ -18,7 +18,7 @@ declare var Stripe: any;
   templateUrl: './ind-orders.component.html',
   styleUrl: './ind-orders.component.css'
 })
-export class IndOrdersComponent implements OnInit {
+export class IndOrdersComponent implements OnInit, OnDestroy {
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
   private toastService = inject(ToastService);
@@ -29,6 +29,7 @@ export class IndOrdersComponent implements OnInit {
   isLoading = true;
   cancellingId: number | null = null;
   payingId: number | null = null;
+  private pollSub?: Subscription;
 
   // Pagination (client-side)
   pageNumber = 0;
@@ -41,8 +42,36 @@ export class IndOrdersComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['payment'] === 'success') {
         this.toastService.showSuccess('Payment completed successfully!');
+        const orderId = params['orderId'] ? Number(params['orderId']) : null;
+        if (orderId) {
+          this.pollUntilPaid(orderId);
+        }
       } else if (params['payment'] === 'cancel') {
         this.toastService.showError('Payment cancelled.');
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
+  }
+
+  private pollUntilPaid(orderId: number): void {
+    const MAX_ATTEMPTS = 10;
+    let attempts = 0;
+
+    this.pollSub = interval(2000).pipe(
+      switchMap(() => this.orderService.getById(orderId).pipe(catchError(() => of(null)))),
+      takeWhile(order => {
+        attempts++;
+        if (!order || order.status === OrderStatus.PAID || attempts >= MAX_ATTEMPTS) {
+          return false;
+        }
+        return true;
+      }, true)
+    ).subscribe(order => {
+      if (order?.status === OrderStatus.PAID) {
+        this.loadOrders();
       }
     });
   }
