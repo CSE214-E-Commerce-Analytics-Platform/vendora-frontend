@@ -30,6 +30,14 @@ export class UserService {
         );
     }
 
+    searchUsersByEmail(email: string, request?: RestPageableRequest): Observable<RestPageableEntity<User>> {
+        let params = buildPageParams(request);
+        params = params.set('email', email);
+        return this.http.get<ApiResponse<RestPageableEntity<User>>>(`${this.apiUrl}/search`, { params }).pipe(
+            map(res => res.payload as RestPageableEntity<User>)
+        );
+    }
+
     findUserById(id: number): Observable<User> {
         return this.http.get<ApiResponse<User>>(`${this.apiUrl}/${id}`).pipe(
             map(res => res.payload as User)

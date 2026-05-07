@@ -18,6 +18,45 @@
 .page-header h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
 .page-header p  { color: var(--text-secondary); margin: 0; font-size: 0.875rem; }
 
+/* ── Search Bar ───────────────────────────────────────── */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: rgba(99,102,241,0.5);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.search-icon { font-size: 1rem; flex-shrink: 0; opacity: 0.6; }
+
+.search-input {
+  flex: 1; border: none; outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.search-input::placeholder { color: var(--text-secondary); }
+
+.search-clear {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-secondary); font-size: 0.85rem;
+  padding: 2px 6px; border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.search-clear:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+
 /* ── Filter Bar ───────────────────────────────────────── */
 .role-filter-bar {
   display: flex; gap: 8px; flex-wrap: wrap;
@@ -147,3 +186,5 @@
 .delete-btn:not(:disabled):hover { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(239,68,68,0.2); }
 
 button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.role-filter-bar.dimmed { opacity: 0.45; pointer-events: none; }

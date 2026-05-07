@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, switchMap, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { UserService } from '../../../core/services/user.service';
 import { User, UserRequest } from '../../../shared/models/user';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,7 +15,7 @@ type RoleFilter = 'ALL' | 'INDIVIDUAL' | 'CORPORATE' | 'ADMIN';
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.css'
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit, OnDestroy {
 
   users: User[] = [];
   isLoading = true;
@@ -22,6 +23,11 @@ export class AdminUsersComponent implements OnInit {
   currentUserEmail: string | null = null;
 
   selectedRole: RoleFilter = 'ALL';
+
+  // Email search
+  searchEmail = '';
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   // Pagination
   pageNumber = 0;
@@ -35,17 +41,65 @@ export class AdminUsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUserEmail = this.authService.getCurrentUserEmail();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(email => {
+        this.isLoading = true;
+        this.errorMessage = '';
+        this.pageNumber = 0;
+        const req = { pageNumber: 0, pageSize: this.pageSize };
+        return email.trim()
+          ? this.userService.searchUsersByEmail(email.trim(), req)
+          : this.loadUsersObservable();
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (res) => {
+        this.users = res?.content || [];
+        this.totalPages = Math.ceil((res?.totalElement || 0) / this.pageSize);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error searching users', err);
+        this.errorMessage = 'Failed to search users.';
+        this.isLoading = false;
+      }
+    });
+
     this.loadUsers();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onSearchInput(value: string): void {
+    this.searchEmail = value;
+    this.searchSubject.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchEmail = '';
+    this.searchSubject.next('');
+  }
+
+  private loadUsersObservable() {
+    const paginationReq = { pageNumber: this.pageNumber, pageSize: this.pageSize };
+    return this.selectedRole === 'ALL'
+      ? this.userService.findAllUsers(paginationReq)
+      : this.userService.findAllUsersByRole(this.selectedRole, paginationReq);
   }
 
   loadUsers(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const paginationReq = { pageNumber: this.pageNumber, pageSize: this.pageSize };
-    const req$ = this.selectedRole === 'ALL'
-      ? this.userService.findAllUsers(paginationReq)
-      : this.userService.findAllUsersByRole(this.selectedRole, paginationReq);
+    const req$ = this.searchEmail.trim()
+      ? this.userService.searchUsersByEmail(this.searchEmail.trim(), { pageNumber: this.pageNumber, pageSize: this.pageSize })
+      : this.loadUsersObservable();
 
     req$.subscribe({
       next: (res) => {
@@ -64,7 +118,9 @@ export class AdminUsersComponent implements OnInit {
   setRoleFilter(role: RoleFilter): void {
     this.selectedRole = role;
     this.pageNumber = 0;
-    this.loadUsers();
+    if (!this.searchEmail.trim()) {
+      this.loadUsers();
+    }
   }
 
   prevPage(): void { if (this.pageNumber > 0) { this.pageNumber--; this.loadUsers(); } }

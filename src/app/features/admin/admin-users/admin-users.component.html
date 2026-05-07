@@ -4,18 +4,31 @@
         <p>Manage platform accounts, roles, and access statuses.</p>
     </div>
 
+    <!-- Email Search Bar -->
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input
+            type="text"
+            class="search-input"
+            placeholder="Search by email..."
+            [value]="searchEmail"
+            (input)="onSearchInput($any($event.target).value)"
+        />
+        <button *ngIf="searchEmail" class="search-clear" (click)="clearSearch()" title="Clear search">✕</button>
+    </div>
+
     <!-- Role Filter Tabs -->
-    <div class="role-filter-bar">
-        <button class="role-tab" [ngClass]="{'active': selectedRole === 'ALL'}" (click)="setRoleFilter('ALL')">
+    <div class="role-filter-bar" [class.dimmed]="searchEmail.trim()">
+        <button class="role-tab" [ngClass]="{'active': selectedRole === 'ALL'}" (click)="setRoleFilter('ALL')" [disabled]="!!searchEmail.trim()">
             👥 All
         </button>
-        <button class="role-tab individual-tab" [ngClass]="{'active': selectedRole === 'INDIVIDUAL'}" (click)="setRoleFilter('INDIVIDUAL')">
+        <button class="role-tab individual-tab" [ngClass]="{'active': selectedRole === 'INDIVIDUAL'}" (click)="setRoleFilter('INDIVIDUAL')" [disabled]="!!searchEmail.trim()">
             👤 Individual
         </button>
-        <button class="role-tab corporate-tab" [ngClass]="{'active': selectedRole === 'CORPORATE'}" (click)="setRoleFilter('CORPORATE')">
+        <button class="role-tab corporate-tab" [ngClass]="{'active': selectedRole === 'CORPORATE'}" (click)="setRoleFilter('CORPORATE')" [disabled]="!!searchEmail.trim()">
             🏢 Corporate
         </button>
-        <button class="role-tab admin-tab" [ngClass]="{'active': selectedRole === 'ADMIN'}" (click)="setRoleFilter('ADMIN')">
+        <button class="role-tab admin-tab" [ngClass]="{'active': selectedRole === 'ADMIN'}" (click)="setRoleFilter('ADMIN')" [disabled]="!!searchEmail.trim()">
             👑 Admin
         </button>
     </div>
